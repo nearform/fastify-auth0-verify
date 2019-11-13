@@ -1,0 +1,61 @@
+{
+  "name": "fastify-auth0-verify",
+  "version": "0.1.0",
+  "description": "Auth0 verification plugin for Fastify",
+  "author": "NearForm Ltd",
+  "contributors": [
+    {
+      "name": "Paolo Insogna",
+      "url": "https://github.com/ShogunPanda"
+    }
+  ],
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "keywords": [
+    "fastify",
+    "fastify-plugin",
+    "auth0"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nearform/fastify-auth0-verify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nearform/fastify-auth0-verify/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "jest test --coverage --coverageReporters=html --coverageReporters=text",
+    "ci": "jest test --coverage --ci --coverageReporters=json",
+    "lint": "eslint index.js test.js"
+  },
+  "dependencies": {
+    "fastify": "^2.10.0",
+    "fastify-jwt": "^1.2.0",
+    "fastify-plugin": "^1.6.0",
+    "http-errors": "^1.7.3",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^24.9.0",
+    "nock": "^11.7.0",
+    "prettier": "^1.19.1"
+  },
+  "engines": {
+    "node": ">= 12.0.0"
+  },
+  "jest": {
+    "watchman": false
+  }
+}
