@@ -127,7 +127,7 @@ describe('Options parsing', function() {
   it('should enable RS256 when the domain is present', async function() {
     const server = await buildServer({ domain: 'localhost' })
 
-    expect(server.auth0.verify.algorithms).toEqual(['RS256'])
+    expect(server.auth0Verify.verify.algorithms).toEqual(['RS256'])
 
     server.close()
   })
@@ -135,7 +135,7 @@ describe('Options parsing', function() {
   it('should enable HS256 when the secret is present', async function() {
     const server = await buildServer({ secret: 'secret' })
 
-    expect(server.auth0.verify.algorithms).toEqual(['HS256'])
+    expect(server.auth0Verify.verify.algorithms).toEqual(['HS256'])
 
     server.close()
   })
@@ -143,7 +143,7 @@ describe('Options parsing', function() {
   it('should enable both algorithms is both options are present', async function() {
     const server = await buildServer({ domain: 'http://localhost', secret: 'secret' })
 
-    expect(server.auth0.verify.algorithms).toEqual(['RS256', 'HS256'])
+    expect(server.auth0Verify.verify.algorithms).toEqual(['RS256', 'HS256'])
 
     server.close()
   })
@@ -524,6 +524,120 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error',
       message:
         'Unable to get the JWS: request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
+    })
+  })
+
+  it('should cache the key and not it the well-known URL more than once', async function() {
+    let response
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+  })
+
+  it('should correctly get the key again from the well-known URL if cache expired', async function() {
+    await server.close()
+    server = await buildServer({ domain: 'localhost', secret: 'secret', secretsTtl: 10 })
+
+    let response
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+
+    await new Promise(resolve => setTimeout(resolve, 20))
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    const body = JSON.parse(response.body)
+
+    expect(response.statusCode).toEqual(500)
+    expect(body).toMatchObject({
+      statusCode: 500,
+      error: 'Internal Server Error'
+    })
+
+    expect(body.message).toMatch(/^Unable to get the JWS: request to .+, reason: Nock: No match for request/)
+  })
+
+  it('should not cache the key if cache was disabled', async function() {
+    await server.close()
+    server = await buildServer({ domain: 'localhost', secret: 'secret', secretsTtl: 0 })
+
+    let response
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
+    })
+
+    const body = JSON.parse(response.body)
+
+    expect(response.statusCode).toEqual(500)
+    expect(body).toMatchObject({
+      statusCode: 500,
+      error: 'Internal Server Error'
+    })
+
+    expect(body.message).toMatch(/^Unable to get the JWS: request to .+, reason: Nock: No match for request/)
+  })
+
+  it('should not try to get the key twice when using caching if a previous attempt failed', async function() {
+    let response
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256MissingKey}` }
+    })
+
+    expect(response.statusCode).toEqual(500)
+    expect(JSON.parse(response.body)).toEqual({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'Unable to get the JWS: No matching key found in the set.'
+    })
+
+    response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256MissingKey}` }
+    })
+
+    expect(response.statusCode).toEqual(500)
+    expect(JSON.parse(response.body)).toEqual({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'Unable to get the JWS: No matching key found in the set.'
     })
   })
 })

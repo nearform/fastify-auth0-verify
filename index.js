@@ -5,6 +5,7 @@ const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
 const jwt = require('jsonwebtoken')
 const fetch = require('node-fetch')
+const NodeCache = require('node-cache')
 
 const errorMessages = {
   badHeaderFormat: 'Authorization header should be in format: Bearer [token].',
@@ -71,8 +72,19 @@ function verifyOptions(options) {
   return { domain, audience, secret, verify }
 }
 
-async function getRemoteSecret(domain, alg, kid) {
+async function getRemoteSecret(domain, alg, kid, cache) {
   try {
+    const cacheKey = `${alg}:${kid}:${domain}`
+
+    const cached = cache.get(cacheKey)
+
+    if (cached) {
+      return cached
+    } else if (cached === null) {
+      // null is returned when a previous attempt resulted in the key missing in the JWKs - Do not attemp to fetch again
+      throw new Error(errorMessages.missingKey)
+    }
+
     // Hit the well-known URL in order to get the key
     const response = await fetch(`${domain}.well-known/jwks.json`)
 
@@ -86,11 +98,17 @@ async function getRemoteSecret(domain, alg, kid) {
     const key = body.keys.find(k => k.alg === alg && k.kid === kid)
 
     if (!key) {
+      // Mark the key as missing
+      cache.set(cacheKey, null)
       throw new Error(errorMessages.missingKey)
     }
 
     // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
-    return `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
+    const secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
+
+    // Save the key in the cache
+    cache.set(cacheKey, secret)
+    return secret
   } catch (e) {
     throw new Internal(`${errorMessages.jwks}: ${e.message}`)
   }
@@ -108,11 +126,11 @@ function getSecret(request, reply, cb) {
 
   // If the algorithm is not using RS256, the encryption key is Auth0 client secret
   if (header.alg.startsWith('HS')) {
-    return cb(null, request.auth0.secret)
+    return cb(null, request.auth0Verify.secret)
   }
 
   // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
-  getRemoteSecret(request.auth0.domain, header.alg, header.kid)
+  getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
     .then(key => cb(null, key))
     .catch(cb)
 }
@@ -151,6 +169,10 @@ async function authenticate(request, reply) {
 
 function fastifyAuth0Verify(instance, options, done) {
   try {
+    // Check if secrets cache is wanted - Convert milliseconds to seconds and cache for a week by default
+    const ttl = parseFloat('secretsTtl' in options ? options.secretsTtl : '604800000', 10) / 1e3
+    delete options.secretsTtl
+
     const auth0Options = verifyOptions(options)
 
     // Setup Fastify-JWT
@@ -158,9 +180,15 @@ function fastifyAuth0Verify(instance, options, done) {
 
     // Setup our decorators
     instance.decorate('authenticate', authenticate)
-    instance.decorate('auth0', auth0Options)
-    instance.decorateRequest('auth0', auth0Options)
+    instance.decorate('auth0Verify', auth0Options)
+    instance.decorateRequest('auth0Verify', auth0Options)
     instance.decorateRequest('jwtDecode', jwtDecode)
+
+    // Create a cache or a fake cache
+    instance.decorateRequest(
+      'auth0VerifySecretsCache',
+      ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false }
+    )
 
     done()
   } catch (e) {

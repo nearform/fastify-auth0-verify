@@ -31,7 +31,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest test --coverage --coverageReporters=html --coverageReporters=text",
-    "ci": "jest test --coverage --ci --coverageReporters=json",
+    "ci": "npm run lint && jest test --coverage --ci --coverageReporters=json",
     "lint": "eslint index.js test.js"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "fastify-jwt": "^1.2.0",
     "fastify-plugin": "^1.6.0",
     "http-errors": "^1.7.3",
+    "node-cache": "^5.0.1",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {

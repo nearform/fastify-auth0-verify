@@ -23,6 +23,7 @@ Register as a plugin, providing one or more of the following options:
 - `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience.
 - `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
 - `complete`: If to return also the header and signature of the verified token.
+- `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
 
 Once registered, your fastify instance and request will be decorated as describe by `fastify-jwt`.
 
