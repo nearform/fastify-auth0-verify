@@ -1,3 +1,5 @@
+'use strict'
+
 const { InternalServerError: Internal, Unauthorized } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')

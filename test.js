@@ -1,4 +1,6 @@
-/* global describe, beforeEach, afterEach, it, expect */
+/* global describe, beforeEach, afterEach, beforeAll, afterAll, it, expect */
+
+'use strict'
 
 const fastify = require('fastify')
 const nock = require('nock')
