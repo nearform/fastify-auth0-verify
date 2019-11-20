@@ -39,9 +39,9 @@ Example:
 ```js
 const server = require('fastify')()
 
-server.register(require('fastify-auth0-verify'), options)
+server.register(require('fastify-auth0-verify'))
 
-server.register(function(instance, options, done) {
+server.register(function(instance, _options, done) {
   instance.get('/verify', {
     handler: function(request, reply) {
       reply.send(request.user)
