@@ -1,3 +1,9 @@
+### 2019-11-20 / 0.2.0
+
+* chore: Added CHANGELOG.md
+* fix: Switch to got for HTTP fetching. Fixes #5.
+* chore: Fix README example. Fixes #5.
+
 ### 2019-11-20 / 0.1.0
 
 - chore: Disable coverage.
