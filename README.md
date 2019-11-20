@@ -2,8 +2,9 @@
 
 [![Package Version](https://img.shields.io/npm/v/fastify-auth0-verify.svg)](https://npm.im/fastify-auth0-verify)
 [![Dependency Status](https://img.shields.io/david/nearform/fastify-auth0-verify)](https://david-dm.org/nearform/fastify-auth0-verify)
-[![Build](https://img.shields.io/circleci/build/gh/nearform/fastify-auth0-verify?token=a721161f936393ce2826774e8b89c0785c06967b)](https://circleci.com/gh/nearform/fastify-auth0-verify)
-[![Code Coverage](https://img.shields.io/codecov/c/gh/nearform/-verify?token=d0ae1643f35c4c4f9714a357f796d05d)](https://codecov.io/gh/nearform/fastify-auth0-verify)
+[![Build](https://github.com/nearform/fastify-auth0-verify/workflows/CI/badge.svg)](https://github.com/nearform/fastify-auth0-verify/actions?query=workflow%3ACI)
+
+<!-- [![Code Coverage](https://img.shields.io/codecov/c/gh/nearform/-verify?token=d0ae1643f35c4c4f9714a357f796d05d)](https://codecov.io/gh/nearform/fastify-auth0-verify) -->
 
 Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt) and [jsonwebtoken](https://npm.im/jsonwebtoken).
 
