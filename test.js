@@ -464,7 +464,7 @@ describe('RS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
-      message: '[HTTP 404] {"error":"Not found."}'
+      message: 'Unable to get the JWS due to a HTTP error: [HTTP 404] {"error":"Not found."}'
     })
   })
 
@@ -527,7 +527,7 @@ describe('RS256 JWT token validation', function() {
       code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
+      message: 'connect ECONNREFUSED 127.0.0.1:443'
     })
   })
 
@@ -581,7 +581,7 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^request to .+, reason: Nock: No match for request/)
+    expect(body.message).toMatch(/^Nock: No match for request/)
   })
 
   it('should not cache the key if cache was disabled', async function() {
@@ -612,7 +612,7 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^request to .+, reason: Nock: No match for request/)
+    expect(body.message).toMatch(/^Nock: No match for request/)
   })
 
   it('should not try to get the key twice when using caching if a previous attempt failed', async function() {

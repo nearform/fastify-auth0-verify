@@ -1,10 +1,10 @@
 'use strict'
 
-const { Unauthorized } = require('http-errors')
+const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
 const jwt = require('jsonwebtoken')
-const fetch = require('node-fetch')
+const got = require('got')
 const NodeCache = require('node-cache')
 
 const forbiddenOptions = ['algorithms']
@@ -14,6 +14,7 @@ const errorMessages = {
   expiredToken: 'Expired token.',
   invalidAlgorithm: 'Unsupported token.',
   invalidToken: 'Invalid token.',
+  jwksHttpError: 'Unable to get the JWS due to a HTTP error',
   missingHeader: 'Missing Authorization HTTP header.',
   missingKey: 'No matching key found in the set.',
   missingOptions: 'Please provide at least one of the "domain" or "secret" options.'
@@ -88,16 +89,10 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     }
 
     // Hit the well-known URL in order to get the key
-    const response = await fetch(`${domain}.well-known/jwks.json`)
-
-    if (response.status !== 200) {
-      throw new Error(`[HTTP ${response.status}] ${await response.text()}`)
-    }
-
-    const body = await response.json()
+    const response = await got(`${domain}.well-known/jwks.json`, { json: true })
 
     // Find the key with ID and algorithm matching the JWT token header
-    const key = body.keys.find(k => k.alg === alg && k.kid === kid)
+    const key = response.body.keys.find(k => k.alg === alg && k.kid === kid)
 
     if (!key) {
       // Mark the key as missing
@@ -112,6 +107,12 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     cache.set(cacheKey, secret)
     return secret
   } catch (e) {
+    if (e.response) {
+      throw InternalServerError(
+        `${errorMessages.jwksHttpError}: [HTTP ${e.response.statusCode}] ${JSON.stringify(e.response.body)}`
+      )
+    }
+
     e.statusCode = 500
     throw e
   }
