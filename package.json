@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Auth0 verification plugin for Fastify",
   "author": "NearForm Ltd",
+  "homepage": "https://github.com/nearform/fastify-auth0-verify",
   "contributors": [
     {
       "name": "Paolo Insogna",

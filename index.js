@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
+const forbiddenOptions = ['algorithms']
+
 const errorMessages = {
   badHeaderFormat: 'Authorization header should be in format: Bearer [token].',
   expiredToken: 'Expired token.',
@@ -29,13 +31,14 @@ function verifyOptions(options) {
   let { domain, audience, secret } = options
 
   // Do not allow some options to be overidden by original user provided
-  delete options.algorithms
-  delete options.secret
-  delete options.domain
-  delete options.audience
+  for (const key of forbiddenOptions) {
+    if (key in options) {
+      throw new Error(`Option "${key}" is not supported.`)
+    }
+  }
 
   // Prepare verification options
-  const verify = Object.assign({ algorithms: [] }, options)
+  const verify = Object.assign({}, options, { algorithms: [] })
 
   if (domain) {
     domain = domain.toString()

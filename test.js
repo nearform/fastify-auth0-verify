@@ -151,6 +151,10 @@ describe('Options parsing', function() {
   it('should complain if neither domain or secret are present', async function() {
     await expect(buildServer()).rejects.toThrow('Please provide at least one of the "domain" or "secret" options.')
   })
+
+  it('should complain if forbidden options are present', async function() {
+    await expect(buildServer({ algorithms: 'whatever' })).rejects.toThrow('Option "algorithms" is not supported.')
+  })
 })
 
 describe('JWT token decoding', function() {
