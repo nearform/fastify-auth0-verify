@@ -460,7 +460,7 @@ describe('RS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'Unable to get the JWS: [HTTP 404] {"error":"Not found."}'
+      message: '[HTTP 404] {"error":"Not found."}'
     })
   })
 
@@ -475,7 +475,7 @@ describe('RS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'Unable to get the JWS: No matching key found in the set.'
+      message: 'No matching key found in the set.'
     })
   })
 
@@ -520,10 +520,10 @@ describe('RS256 JWT token validation', function() {
 
     expect(response.statusCode).toEqual(500)
     expect(JSON.parse(response.body)).toEqual({
+      code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error',
-      message:
-        'Unable to get the JWS: request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
+      message: 'request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
     })
   })
 
@@ -577,7 +577,7 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^Unable to get the JWS: request to .+, reason: Nock: No match for request/)
+    expect(body.message).toMatch(/^request to .+, reason: Nock: No match for request/)
   })
 
   it('should not cache the key if cache was disabled', async function() {
@@ -608,7 +608,7 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^Unable to get the JWS: request to .+, reason: Nock: No match for request/)
+    expect(body.message).toMatch(/^request to .+, reason: Nock: No match for request/)
   })
 
   it('should not try to get the key twice when using caching if a previous attempt failed', async function() {
@@ -624,7 +624,7 @@ describe('RS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'Unable to get the JWS: No matching key found in the set.'
+      message: 'No matching key found in the set.'
     })
 
     response = await server.inject({
@@ -637,7 +637,7 @@ describe('RS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'Unable to get the JWS: No matching key found in the set.'
+      message: 'No matching key found in the set.'
     })
   })
 })

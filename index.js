@@ -1,6 +1,6 @@
 'use strict'
 
-const { InternalServerError: Internal, Unauthorized } = require('http-errors')
+const { Unauthorized } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
 const jwt = require('jsonwebtoken')
@@ -12,7 +12,6 @@ const errorMessages = {
   expiredToken: 'Expired token.',
   invalidAlgorithm: 'Unsupported token.',
   invalidToken: 'Invalid token.',
-  jwks: 'Unable to get the JWS',
   missingHeader: 'Missing Authorization HTTP header.',
   missingKey: 'No matching key found in the set.',
   missingOptions: 'Please provide at least one of the "domain" or "secret" options.'
@@ -110,7 +109,8 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     cache.set(cacheKey, secret)
     return secret
   } catch (e) {
-    throw new Internal(`${errorMessages.jwks}: ${e.message}`)
+    e.statusCode = 500
+    throw e
   }
 }
 
