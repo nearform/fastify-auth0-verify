@@ -39,7 +39,10 @@ Example:
 ```js
 const server = require('fastify')()
 
-server.register(require('fastify-auth0-verify'))
+server.register(require('fastify-auth0-verify'), {
+  domain: "<auth0 app domain>",
+  audience: "<auth0 app audience>",
+})
 
 server.register(function(instance, _options, done) {
   instance.get('/verify', {
