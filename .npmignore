@@ -1,0 +1,8 @@
+test.js
+prettier.config.js
+.eslintrc.js
+.github/
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+coverage
+CHANGELOG.md
