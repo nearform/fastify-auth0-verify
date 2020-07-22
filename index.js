@@ -29,7 +29,7 @@ const fastifyJwtErrors = [
 ]
 
 function verifyOptions(options) {
-  let { domain, audience, secret } = options
+  let { domain, audience, secret, issuer } = options
 
   // Do not allow some options to be overidden by original user provided
   for (const key of forbiddenOptions) {
@@ -57,8 +57,10 @@ function verifyOptions(options) {
     }
   }
 
+  verify.issuer = issuer || domain
+
   if (audience) {
-    verify.audience = audience === true ? domain : audience.toString()
+    verify.audience = audience === true ? domain : audience
   }
 
   if (secret) {

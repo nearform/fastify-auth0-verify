@@ -21,7 +21,8 @@ npm install fastify-auth0-verify --save
 Register as a plugin, providing one or more of the following options:
 
 - `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain or the full URL, including the trailing slash (`https://domain.com/`).
-- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience.
+- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers. 
+- `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers. 
 - `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
 - `complete`: If to return also the header and signature of the verified token.
 - `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
