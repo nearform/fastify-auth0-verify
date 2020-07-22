@@ -38,23 +38,23 @@
     "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
-    "fastify": "^2.10.0",
-    "fastify-jwt": "^1.2.0",
-    "fastify-plugin": "^1.6.0",
-    "got": "^9.6.0",
+    "fastify-jwt": "^2.1.2",
+    "fastify-plugin": "^2.0.1",
+    "got": "^11.5.1",
     "http-errors": "^1.7.3",
     "node-cache": "^5.0.1"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^7.5.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "jest": "^24.9.0",
-    "nock": "^11.7.0",
-    "prettier": "^1.19.1"
+    "fastify": "^3.1.1",
+    "jest": "^26.1.0",
+    "nock": "^13.0.2",
+    "prettier": "^2.0.5"
   },
   "engines": {
     "node": ">= 12.0.0"
