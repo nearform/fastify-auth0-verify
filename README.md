@@ -41,7 +41,7 @@ Example:
 const server = require('fastify')()
 
 server.register(require('fastify-auth0-verify'), {
-  domain: "<auth0 app domain>",
+  domain: "<auth0 auth domain>",
   audience: "<auth0 app audience>",
 })
 
@@ -61,6 +61,34 @@ server.listen(0, err => {
     throw err
   }
 })
+```
+
+You can configure there to be more than one Auth0 API audiences: 
+
+```js
+const server = require('fastify')()
+
+server.register(require('fastify-auth0-verify'), {
+  domain: '<auth0 auth domain>',
+  audience: ['<auth0 app audience>', '<auth0 admin audience>']
+})
+
+server.register(function(instance, _options, done) {
+  instance.get('/verify', {
+    handler: function(request, reply) {
+      reply.send(request.user)
+    },
+    preValidation: instance.authenticate
+  })
+  done()
+})
+
+server.listen(APP_PORT, err => {
+  if (err) {
+    throw err
+  }
+})
+
 ```
 
 ## Contributing
