@@ -64,6 +64,8 @@ const tokens = {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
   hs256ValidWithIssuer:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0LyJ9.u9d0l3FrgAx4b9njutSd_HVnBc7gO4fzvl6TLMRUdpE',
+  hs256ValidWithProvidedIssuer:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6ImZvbyJ9.ogCM7rsqPbUZHnoLz2LqkhA_wzTwgcqbIhjhN_B30iU',
   hs256ValidWithAudience:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImF1ZCI6ImZvbyJ9.o3mwcXxXgB03_exatmCTSJNd7IKA8fUxMwJ-YJgzfzo',
   hs256ValidWithDomainAsAudience:
@@ -275,6 +277,44 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
+  it('should validate provided issuer', async function() {
+    await server.close()
+    server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: 'foo' })
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.hs256ValidWithProvidedIssuer}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+    expect(JSON.parse(response.body)).toEqual({
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'foo'
+    })
+  })
+
+  it('should validate multiple issuers', async function() {
+    await server.close()
+    server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: ['bar', 'foo', 'blah'] })
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.hs256ValidWithProvidedIssuer}` }
+    })
+
+    expect(response.statusCode).toEqual(200)
+    expect(JSON.parse(response.body)).toEqual({
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'foo'
+    })
+  })
+
   it('should validate the audience', async function() {
     await server.close()
     server = await buildServer({ audience: 'foo', secret: 'secret' })
@@ -429,6 +469,26 @@ describe('RS256 JWT token validation', function() {
       admin: true,
       iss: 'https://localhost/',
       aud: 'https://localhost/'
+    })
+  })
+
+  it('should validate with multiple audiences ', async function() {
+    await server.close()
+    server = await buildServer({ domain: 'localhost', audience: ['https://otherhost/', 'foo', 'https://somehost/'], secret: 'secret' })
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.rs256ValidWithAudience}` }
+    })
+
+    // expect(response.statusCode).toEqual(200)
+    expect(JSON.parse(response.body)).toEqual({
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'https://localhost/',
+      aud: 'foo'
     })
   })
 

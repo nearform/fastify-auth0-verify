@@ -29,7 +29,7 @@ const fastifyJwtErrors = [
 ]
 
 function verifyOptions(options) {
-  let { domain, audience, secret } = options
+  let { domain, audience, secret, issuer } = options
 
   // Do not allow some options to be overidden by original user provided
   for (const key of forbiddenOptions) {
@@ -57,8 +57,10 @@ function verifyOptions(options) {
     }
   }
 
+  verify.issuer = issuer || domain
+
   if (audience) {
-    verify.audience = audience === true ? domain : audience.toString()
+    verify.audience = audience === true ? domain : audience
   }
 
   if (secret) {
@@ -89,7 +91,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     }
 
     // Hit the well-known URL in order to get the key
-    const response = await got(`${domain}.well-known/jwks.json`, { json: true })
+    const response = await got(`${domain}.well-known/jwks.json`, { responseType: 'json' })
 
     // Find the key with ID and algorithm matching the JWT token header
     const key = response.body.keys.find(k => k.alg === alg && k.kid === kid)
@@ -200,4 +202,4 @@ function fastifyAuth0Verify(instance, options, done) {
   }
 }
 
-module.exports = fastifyPlugin(fastifyAuth0Verify, { name: 'fastify-auth0-verify', fastify: '2.x' })
+module.exports = fastifyPlugin(fastifyAuth0Verify, { name: 'fastify-auth0-verify', fastify: '3.x' })
