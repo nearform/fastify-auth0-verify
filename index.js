@@ -29,7 +29,7 @@ const fastifyJwtErrors = [
 ]
 
 function verifyOptions(options) {
-  let { domain, audience, secret, issuer } = options
+  let { domain, audience, secret } = options
 
   // Do not allow some options to be overidden by original user provided
   for (const key of forbiddenOptions) {
@@ -47,6 +47,9 @@ function verifyOptions(options) {
     // Normalize the domain in order to get a complete URL for JWKS fetching
     if (!domain.match(/^http(?:s?)/)) {
       domain = new URL(`https://${domain}`).toString()
+    } else {
+      // adds missing trailing slash if it's not been provided in the config
+      domain = new URL(domain).toString()
     }
 
     verify.algorithms.push('RS256')
@@ -56,8 +59,6 @@ function verifyOptions(options) {
       verify.audience = domain
     }
   }
-
-  verify.issuer = issuer || domain
 
   if (audience) {
     verify.audience = audience === true ? domain : audience

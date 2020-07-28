@@ -277,44 +277,6 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should validate provided issuer', async function() {
-    await server.close()
-    server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: 'foo' })
-
-    const response = await server.inject({
-      method: 'GET',
-      url: '/verify',
-      headers: { Authorization: `Bearer ${tokens.hs256ValidWithProvidedIssuer}` }
-    })
-
-    expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
-      sub: '1234567890',
-      name: 'John Doe',
-      admin: true,
-      iss: 'foo'
-    })
-  })
-
-  it('should validate multiple issuers', async function() {
-    await server.close()
-    server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: ['bar', 'foo', 'blah'] })
-
-    const response = await server.inject({
-      method: 'GET',
-      url: '/verify',
-      headers: { Authorization: `Bearer ${tokens.hs256ValidWithProvidedIssuer}` }
-    })
-
-    expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
-      sub: '1234567890',
-      name: 'John Doe',
-      admin: true,
-      iss: 'foo'
-    })
-  })
-
   it('should validate the audience', async function() {
     await server.close()
     server = await buildServer({ audience: 'foo', secret: 'secret' })
