@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "fastify-jwt": "^2.1.2",
-    "fastify-plugin": "^2.0.1",
+    "fastify-plugin": "^3.0.0",
     "got": "^11.5.1",
     "http-errors": "^1.7.3",
     "node-cache": "^5.0.1"
