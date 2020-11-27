@@ -191,11 +191,13 @@ function fastifyAuth0Verify(instance, options, done) {
     instance.decorateRequest('auth0Verify', auth0Options)
     instance.decorateRequest('jwtDecode', jwtDecode)
 
+    const cache =
+      ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false, close: () => undefined }
+
     // Create a cache or a fake cache
-    instance.decorateRequest(
-      'auth0VerifySecretsCache',
-      ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false }
-    )
+    instance.decorateRequest('auth0VerifySecretsCache', cache)
+
+    instance.addHook('onClose', () => cache.close())
 
     done()
   } catch (e) {

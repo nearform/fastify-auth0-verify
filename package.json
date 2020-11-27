@@ -8,6 +8,11 @@
     {
       "name": "Paolo Insogna",
       "url": "https://github.com/ShogunPanda"
+    },
+    {
+      "name": "Simone Busoli",
+      "email": "simone.busoli@nearform.com",
+      "url": "https://github.com/simoneb"
     }
   ],
   "license": "Apache-2.0",
@@ -46,9 +51,11 @@
   },
   "devDependencies": {
     "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-config-standard": "^16.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
     "fastify": "^3.1.1",
