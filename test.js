@@ -1,11 +1,9 @@
-/* global describe, beforeEach, afterEach, beforeAll, afterAll, it, expect */
+/* global describe, beforeEach, afterEach, beforeAll, afterAll, it, expect, jest */
 
 'use strict'
 
 const fastify = require('fastify')
 const nock = require('nock')
-
-const fastifyAuth0 = require('./index')
 
 /* eslint-disable max-len */
 
@@ -98,9 +96,9 @@ const tokens = {
 async function buildServer(options) {
   const server = fastify()
 
-  server.register(fastifyAuth0, options)
+  server.register(require('.'), options)
 
-  server.register(function(instance, options, done) {
+  server.register(function (instance, options, done) {
     instance.get('/verify', {
       async handler(request) {
         return request.user
@@ -125,8 +123,8 @@ async function buildServer(options) {
   return server
 }
 
-describe('Options parsing', function() {
-  it('should enable RS256 when the domain is present', async function() {
+describe('Options parsing', function () {
+  it('should enable RS256 when the domain is present', async function () {
     const server = await buildServer({ domain: 'localhost' })
 
     expect(server.auth0Verify.verify.algorithms).toEqual(['RS256'])
@@ -134,7 +132,7 @@ describe('Options parsing', function() {
     server.close()
   })
 
-  it('should enable HS256 when the secret is present', async function() {
+  it('should enable HS256 when the secret is present', async function () {
     const server = await buildServer({ secret: 'secret' })
 
     expect(server.auth0Verify.verify.algorithms).toEqual(['HS256'])
@@ -142,7 +140,7 @@ describe('Options parsing', function() {
     server.close()
   })
 
-  it('should enable both algorithms is both options are present', async function() {
+  it('should enable both algorithms is both options are present', async function () {
     const server = await buildServer({ domain: 'http://localhost', secret: 'secret' })
 
     expect(server.auth0Verify.verify.algorithms).toEqual(['RS256', 'HS256'])
@@ -150,25 +148,25 @@ describe('Options parsing', function() {
     server.close()
   })
 
-  it('should complain if neither domain or secret are present', async function() {
+  it('should complain if neither domain or secret are present', async function () {
     await expect(buildServer()).rejects.toThrow('Please provide at least one of the "domain" or "secret" options.')
   })
 
-  it('should complain if forbidden options are present', async function() {
+  it('should complain if forbidden options are present', async function () {
     await expect(buildServer({ algorithms: 'whatever' })).rejects.toThrow('Option "algorithms" is not supported.')
   })
 })
 
-describe('JWT token decoding', function() {
+describe('JWT token decoding', function () {
   let server
 
-  beforeAll(async function() {
+  beforeAll(async function () {
     server = await buildServer({ secret: 'secret' })
   })
 
   afterAll(() => server.close())
 
-  it('should decode a JWT token', async function() {
+  it('should decode a JWT token', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/decode',
@@ -197,7 +195,7 @@ describe('JWT token decoding', function() {
     })
   })
 
-  it('should complain if the HTTP Authorization header is missing', async function() {
+  it('should complain if the HTTP Authorization header is missing', async function () {
     const response = await server.inject({ method: 'GET', url: '/decode' })
 
     expect(response.statusCode).toEqual(401)
@@ -208,7 +206,7 @@ describe('JWT token decoding', function() {
     })
   })
 
-  it('should complain if the HTTP Authorization header is in the wrong format', async function() {
+  it('should complain if the HTTP Authorization header is in the wrong format', async function () {
     const response = await server.inject({ method: 'GET', url: '/decode', headers: { Authorization: 'FOO' } })
 
     expect(response.statusCode).toEqual(401)
@@ -220,16 +218,16 @@ describe('JWT token decoding', function() {
   })
 })
 
-describe('HS256 JWT token validation', function() {
+describe('HS256 JWT token validation', function () {
   let server
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     server = await buildServer({ secret: 'secret' })
   })
 
   afterEach(() => server.close())
 
-  it('should make the token informations available through request.user', async function() {
+  it('should make the token informations available through request.user', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -240,7 +238,7 @@ describe('HS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({ sub: '1234567890', name: 'John Doe', admin: true })
   })
 
-  it('should make the complete token informations available through request.user', async function() {
+  it('should make the complete token informations available through request.user', async function () {
     await server.close()
     server = await buildServer({ secret: 'secret', complete: true })
 
@@ -258,7 +256,7 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should validate the issuer', async function() {
+  it('should validate the issuer', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret' })
 
@@ -277,7 +275,7 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should validate provided issuer', async function() {
+  it('should validate provided issuer', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: 'foo' })
 
@@ -296,7 +294,7 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should validate multiple issuers', async function() {
+  it('should validate multiple issuers', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret', issuer: ['bar', 'foo', 'blah'] })
 
@@ -315,7 +313,7 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should validate the audience', async function() {
+  it('should validate the audience', async function () {
     await server.close()
     server = await buildServer({ audience: 'foo', secret: 'secret' })
 
@@ -329,7 +327,7 @@ describe('HS256 JWT token validation', function() {
     expect(JSON.parse(response.body)).toEqual({ sub: '1234567890', name: 'John Doe', admin: true, aud: 'foo' })
   })
 
-  it('should validate the audience using the domain', async function() {
+  it('should validate the audience using the domain', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', audience: true, secret: 'secret' })
 
@@ -349,7 +347,7 @@ describe('HS256 JWT token validation', function() {
     })
   })
 
-  it('should reject an invalid signature', async function() {
+  it('should reject an invalid signature', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -366,21 +364,19 @@ describe('HS256 JWT token validation', function() {
   })
 })
 
-describe('RS256 JWT token validation', function() {
+describe('RS256 JWT token validation', function () {
   let server
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     server = await buildServer({ domain: 'localhost', secret: 'secret' })
   })
 
   afterEach(() => server.close())
 
-  beforeEach(function() {
+  beforeEach(function () {
     nock.disableNetConnect()
 
-    nock('https://localhost/')
-      .get('/.well-known/jwks.json')
-      .reply(200, jwks)
+    nock('https://localhost/').get('/.well-known/jwks.json').reply(200, jwks)
   })
 
   afterEach(() => {
@@ -388,7 +384,7 @@ describe('RS256 JWT token validation', function() {
     nock.enableNetConnect()
   })
 
-  it('should make the token informations available through request.user', async function() {
+  it('should make the token informations available through request.user', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -404,7 +400,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should make the complete token informations available through request.user', async function() {
+  it('should make the complete token informations available through request.user', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret', complete: true })
 
@@ -432,7 +428,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should validate the audience', async function() {
+  it('should validate the audience', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', audience: 'foo', secret: 'secret' })
 
@@ -452,7 +448,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should validate the audience using the domain', async function() {
+  it('should validate the audience using the domain', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', audience: true, secret: 'secret' })
 
@@ -472,9 +468,13 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should validate with multiple audiences ', async function() {
+  it('should validate with multiple audiences ', async function () {
     await server.close()
-    server = await buildServer({ domain: 'localhost', audience: ['https://otherhost/', 'foo', 'https://somehost/'], secret: 'secret' })
+    server = await buildServer({
+      domain: 'localhost',
+      audience: ['https://otherhost/', 'foo', 'https://somehost/'],
+      secret: 'secret'
+    })
 
     const response = await server.inject({
       method: 'GET',
@@ -492,7 +492,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should reject an invalid signature', async function() {
+  it('should reject an invalid signature', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -507,12 +507,10 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should reject a token when is not possible to retrieve the JWK set due to a HTTP error', async function() {
+  it('should reject a token when is not possible to retrieve the JWK set due to a HTTP error', async function () {
     nock.cleanAll()
 
-    nock('https://localhost/')
-      .get('/.well-known/jwks.json')
-      .reply(404, { error: 'Not found.' })
+    nock('https://localhost/').get('/.well-known/jwks.json').reply(404, { error: 'Not found.' })
 
     const response = await server.inject({
       method: 'GET',
@@ -528,7 +526,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it("should reject a token when the retrieved JWT set doesn't have the required key", async function() {
+  it("should reject a token when the retrieved JWT set doesn't have the required key", async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -543,7 +541,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should reject a token when the retrieved JWT set returns an invalid key', async function() {
+  it('should reject a token when the retrieved JWT set returns an invalid key', async function () {
     nock.cleanAll()
 
     nock('https://localhost/')
@@ -572,7 +570,7 @@ describe('RS256 JWT token validation', function() {
     })
   })
 
-  it('should reject a token when is not possible to retrieve the JWK set due to a generic error', async function() {
+  it('should reject a token when is not possible to retrieve the JWK set due to a generic error', async function () {
     nock.cleanAll()
     nock.enableNetConnect()
 
@@ -587,11 +585,11 @@ describe('RS256 JWT token validation', function() {
       code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'connect ECONNREFUSED 127.0.0.1:443'
+      message: 'request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
     })
   })
 
-  it('should cache the key and not it the well-known URL more than once', async function() {
+  it('should cache the key and not it the well-known URL more than once', async function () {
     let response
 
     response = await server.inject({
@@ -611,7 +609,7 @@ describe('RS256 JWT token validation', function() {
     expect(response.statusCode).toEqual(200)
   })
 
-  it('should correctly get the key again from the well-known URL if cache expired', async function() {
+  it('should correctly get the key again from the well-known URL if cache expired', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret', secretsTtl: 10 })
 
@@ -641,10 +639,10 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^Nock: No match for request/)
+    expect(body.message).toMatch(/Nock: No match for request/)
   })
 
-  it('should not cache the key if cache was disabled', async function() {
+  it('should not cache the key if cache was disabled', async function () {
     await server.close()
     server = await buildServer({ domain: 'localhost', secret: 'secret', secretsTtl: 0 })
 
@@ -672,10 +670,10 @@ describe('RS256 JWT token validation', function() {
       error: 'Internal Server Error'
     })
 
-    expect(body.message).toMatch(/^Nock: No match for request/)
+    expect(body.message).toMatch(/Nock: No match for request/)
   })
 
-  it('should not try to get the key twice when using caching if a previous attempt failed', async function() {
+  it('should not try to get the key twice when using caching if a previous attempt failed', async function () {
     let response
 
     response = await server.inject({
@@ -706,16 +704,16 @@ describe('RS256 JWT token validation', function() {
   })
 })
 
-describe('General error handling', function() {
+describe('General error handling', function () {
   let server
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     server = await buildServer({ secret: 'secret' })
   })
 
   afterEach(() => server.close())
 
-  it('should complain if the HTTP Authorization header is missing', async function() {
+  it('should complain if the HTTP Authorization header is missing', async function () {
     const response = await server.inject({ method: 'GET', url: '/verify' })
 
     expect(response.statusCode).toEqual(401)
@@ -726,7 +724,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the HTTP Authorization header is in the wrong format', async function() {
+  it('should complain if the HTTP Authorization header is in the wrong format', async function () {
     const response = await server.inject({ method: 'GET', url: '/verify', headers: { Authorization: 'FOO' } })
 
     expect(response.statusCode).toEqual(401)
@@ -737,7 +735,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the JWT token is malformed', async function() {
+  it('should complain if the JWT token is malformed', async function () {
     const response = await server.inject({ method: 'GET', url: '/verify', headers: { Authorization: 'Bearer FOO' } })
 
     expect(response.statusCode).toEqual(401)
@@ -748,7 +746,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the JWT token has an unsupported algorithm', async function() {
+  it('should complain if the JWT token has an unsupported algorithm', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -763,7 +761,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the JWT token has expired', async function() {
+  it('should complain if the JWT token has expired', async function () {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -778,7 +776,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the JWT token has an invalid issuer', async function() {
+  it('should complain if the JWT token has an invalid issuer', async function () {
     await server.close()
     server = await buildServer({ domain: 'foo', secret: 'secret' })
 
@@ -796,7 +794,7 @@ describe('General error handling', function() {
     })
   })
 
-  it('should complain if the JWT token has an invalid audience', async function() {
+  it('should complain if the JWT token has an invalid audience', async function () {
     await server.close()
     server = await buildServer({ audience: 'foo', secret: 'secret' })
 
@@ -811,6 +809,34 @@ describe('General error handling', function() {
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
+    })
+  })
+})
+
+describe('Cleanup', function () {
+  it('should close the cache when the server stops', async function (done) {
+    jest.resetModules()
+    expect.assertions(1)
+
+    const mockCache = {
+      close: jest.fn()
+    }
+
+    jest.doMock(
+      'node-cache',
+      jest.fn().mockImplementation(
+        () =>
+          function NodeCache() {
+            return mockCache
+          }
+      )
+    )
+
+    const server = await buildServer({ secret: 'secret' })
+
+    server.close(() => {
+      expect(mockCache.close).toHaveBeenCalled()
+      done()
     })
   })
 })

@@ -4,7 +4,7 @@ const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
 const jwt = require('jsonwebtoken')
-const got = require('got')
+const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
 const forbiddenOptions = ['algorithms']
@@ -92,10 +92,20 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     }
 
     // Hit the well-known URL in order to get the key
-    const response = await got(`${domain}.well-known/jwks.json`, { responseType: 'json' })
+    const response = await fetch(`${domain}.well-known/jwks.json`, { timeout: 5000 })
+
+    const body = await response.json()
+
+    if (!response.ok) {
+      const error = new Error(response.statusText)
+      error.response = response
+      error.body = body
+
+      throw error
+    }
 
     // Find the key with ID and algorithm matching the JWT token header
-    const key = response.body.keys.find(k => k.alg === alg && k.kid === kid)
+    const key = body.keys.find(k => k.alg === alg && k.kid === kid)
 
     if (!key) {
       // Mark the key as missing
@@ -111,9 +121,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     return secret
   } catch (e) {
     if (e.response) {
-      throw InternalServerError(
-        `${errorMessages.jwksHttpError}: [HTTP ${e.response.statusCode}] ${JSON.stringify(e.response.body)}`
-      )
+      throw InternalServerError(`${errorMessages.jwksHttpError}: [HTTP ${e.response.status}] ${JSON.stringify(e.body)}`)
     }
 
     e.statusCode = 500
@@ -191,11 +199,13 @@ function fastifyAuth0Verify(instance, options, done) {
     instance.decorateRequest('auth0Verify', auth0Options)
     instance.decorateRequest('jwtDecode', jwtDecode)
 
+    const cache =
+      ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false, close: () => undefined }
+
     // Create a cache or a fake cache
-    instance.decorateRequest(
-      'auth0VerifySecretsCache',
-      ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false }
-    )
+    instance.decorateRequest('auth0VerifySecretsCache', cache)
+
+    instance.addHook('onClose', () => cache.close())
 
     done()
   } catch (e) {
