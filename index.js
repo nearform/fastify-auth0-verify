@@ -195,15 +195,21 @@ function fastifyAuth0Verify(instance, options, done) {
 
     // Setup our decorators
     instance.decorate('authenticate', authenticate)
-    instance.decorate('auth0Verify', auth0Options)
-    instance.decorateRequest('auth0Verify', auth0Options)
+    instance.decorate('auth0Verify', {
+      getter: () => auth0Options
+    })
+    instance.decorateRequest('auth0Verify', {
+      getter: () => auth0Options
+    })
     instance.decorateRequest('jwtDecode', jwtDecode)
 
     const cache =
       ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false, close: () => undefined }
 
     // Create a cache or a fake cache
-    instance.decorateRequest('auth0VerifySecretsCache', cache)
+    instance.decorateRequest('auth0VerifySecretsCache', {
+      getter: () => cache
+    })
 
     instance.addHook('onClose', () => cache.close())
 
