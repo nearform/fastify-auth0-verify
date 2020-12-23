@@ -195,9 +195,7 @@ function fastifyAuth0Verify(instance, options, done) {
 
     // Setup our decorators
     instance.decorate('authenticate', authenticate)
-    instance.decorate('auth0Verify', {
-      getter: () => auth0Options
-    })
+    instance.decorate('auth0Verify', auth0Options)
     instance.decorateRequest('auth0Verify', {
       getter: () => auth0Options
     })
