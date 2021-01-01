@@ -35,6 +35,7 @@
     "url": "https://github.com/nearform/fastify-auth0-verify/issues"
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jest test --coverage --coverageReporters=html --coverageReporters=text",
     "ci": "npm run lint && jest --coverage --coverageThreshold='{\"global\":{\"branches\":90,\"functions\":90,\"lines\":90,\"statements\":90}}' --ci --coverageReporters=json",
