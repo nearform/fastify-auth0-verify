@@ -37,7 +37,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "jest test --coverage --coverageReporters=html --coverageReporters=text",
+    "test": "jest test --coverage --coverageReporters=html --coverageReporters=text && tsd",
     "ci": "npm run lint && jest --coverage --coverageThreshold='{\"global\":{\"branches\":90,\"functions\":90,\"lines\":90,\"statements\":90}}' --ci --coverageReporters=json",
     "lint": "eslint index.js test.js",
     "prepublishOnly": "npm run ci",
@@ -62,7 +62,9 @@
     "fastify": "^3.1.1",
     "jest": "^26.1.0",
     "nock": "^13.0.2",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "tsd": "^0.14.0",
+    "typescript": "^4.1.3"
   },
   "engines": {
     "node": ">= 12.0.0"
