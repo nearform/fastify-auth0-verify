@@ -16,7 +16,7 @@ const errorMessages = {
   invalidToken: 'Invalid token.',
   jwksHttpError: 'Unable to get the JWS due to a HTTP error',
   missingHeader: 'Missing Authorization HTTP header.',
-  missingKey: 'No matching key found in the set.',
+  missingKey: 'Missing Key: Public key must be provided',
   missingOptions: 'Please provide at least one of the "domain" or "secret" options.'
 }
 
@@ -79,6 +79,7 @@ function verifyOptions(options) {
 }
 
 async function getRemoteSecret(domain, alg, kid, cache) {
+  let isMissingKey = false
   try {
     const cacheKey = `${alg}:${kid}:${domain}`
 
@@ -88,6 +89,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
       return cached
     } else if (cached === null) {
       // null is returned when a previous attempt resulted in the key missing in the JWKs - Do not attemp to fetch again
+      isMissingKey = true
       throw new Error(errorMessages.missingKey)
     }
 
@@ -110,6 +112,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     if (!key) {
       // Mark the key as missing
       cache.set(cacheKey, null)
+      isMissingKey = true
       throw new Error(errorMessages.missingKey)
     }
 
@@ -120,6 +123,10 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     cache.set(cacheKey, secret)
     return secret
   } catch (e) {
+    if (isMissingKey) {
+      throw new Unauthorized(errorMessages.missingKey)
+    }
+
     if (e.response) {
       throw InternalServerError(`${errorMessages.jwksHttpError}: [HTTP ${e.response.status}] ${JSON.stringify(e.body)}`)
     }

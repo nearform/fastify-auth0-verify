@@ -533,11 +533,11 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256MissingKey}` }
     })
 
-    expect(response.statusCode).toEqual(500)
+    expect(response.statusCode).toEqual(401)
     expect(JSON.parse(response.body)).toEqual({
-      statusCode: 500,
-      error: 'Internal Server Error',
-      message: 'No matching key found in the set.'
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'Missing Key: Public key must be provided'
     })
   })
 
@@ -682,11 +682,11 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256MissingKey}` }
     })
 
-    expect(response.statusCode).toEqual(500)
+    expect(response.statusCode).toEqual(401)
     expect(JSON.parse(response.body)).toEqual({
-      statusCode: 500,
-      error: 'Internal Server Error',
-      message: 'No matching key found in the set.'
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'Missing Key: Public key must be provided'
     })
 
     response = await server.inject({
@@ -695,11 +695,11 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256MissingKey}` }
     })
 
-    expect(response.statusCode).toEqual(500)
+    expect(response.statusCode).toEqual(401)
     expect(JSON.parse(response.body)).toEqual({
-      statusCode: 500,
-      error: 'Internal Server Error',
-      message: 'No matching key found in the set.'
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'Missing Key: Public key must be provided'
     })
   })
 })
