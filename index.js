@@ -16,7 +16,7 @@ const errorMessages = {
   invalidToken: 'Invalid token.',
   jwksHttpError: 'Unable to get the JWS due to a HTTP error',
   missingHeader: 'Missing Authorization HTTP header.',
-  missingKey: 'No matching key found in the set.',
+  missingKey: 'Missing Key: Public key must be provided',
   missingOptions: 'Please provide at least one of the "domain" or "secret" options.'
 }
 
@@ -88,7 +88,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
       return cached
     } else if (cached === null) {
       // null is returned when a previous attempt resulted in the key missing in the JWKs - Do not attemp to fetch again
-      throw new Error(errorMessages.missingKey)
+      throw new Unauthorized(errorMessages.missingKey)
     }
 
     // Hit the well-known URL in order to get the key
@@ -110,7 +110,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     if (!key) {
       // Mark the key as missing
       cache.set(cacheKey, null)
-      throw new Error(errorMessages.missingKey)
+      throw new Unauthorized(errorMessages.missingKey)
     }
 
     // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
