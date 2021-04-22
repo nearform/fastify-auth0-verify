@@ -79,7 +79,6 @@ function verifyOptions(options) {
 }
 
 async function getRemoteSecret(domain, alg, kid, cache) {
-  let isMissingKey = false
   try {
     const cacheKey = `${alg}:${kid}:${domain}`
 
@@ -89,8 +88,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
       return cached
     } else if (cached === null) {
       // null is returned when a previous attempt resulted in the key missing in the JWKs - Do not attemp to fetch again
-      isMissingKey = true
-      throw new Error(errorMessages.missingKey)
+      throw new Unauthorized(errorMessages.missingKey)
     }
 
     // Hit the well-known URL in order to get the key
@@ -112,8 +110,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     if (!key) {
       // Mark the key as missing
       cache.set(cacheKey, null)
-      isMissingKey = true
-      throw new Error(errorMessages.missingKey)
+      throw new Unauthorized(errorMessages.missingKey)
     }
 
     // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
@@ -123,10 +120,6 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     cache.set(cacheKey, secret)
     return secret
   } catch (e) {
-    if (isMissingKey) {
-      throw new Unauthorized(errorMessages.missingKey)
-    }
-
     if (e.response) {
       throw InternalServerError(`${errorMessages.jwksHttpError}: [HTTP ${e.response.status}] ${JSON.stringify(e.body)}`)
     }
