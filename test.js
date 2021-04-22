@@ -174,7 +174,7 @@ describe('JWT token decoding', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       regular: {
         admin: true,
         name: 'John Doe',
@@ -199,7 +199,7 @@ describe('JWT token decoding', function () {
     const response = await server.inject({ method: 'GET', url: '/decode' })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Missing Authorization HTTP header.'
@@ -210,7 +210,7 @@ describe('JWT token decoding', function () {
     const response = await server.inject({ method: 'GET', url: '/decode', headers: { Authorization: 'FOO' } })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization header should be in format: Bearer [token].'
@@ -235,7 +235,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({ sub: '1234567890', name: 'John Doe', admin: true })
+    expect(response.json()).toEqual({ sub: '1234567890', name: 'John Doe', admin: true })
   })
 
   it('should make the complete token informations available through request.user', async function () {
@@ -249,7 +249,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       header: { alg: 'HS256', typ: 'JWT' },
       payload: { sub: '1234567890', name: 'John Doe', admin: true },
       signature: 'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'
@@ -267,7 +267,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -286,7 +286,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -305,7 +305,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -324,7 +324,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({ sub: '1234567890', name: 'John Doe', admin: true, aud: 'foo' })
+    expect(response.json()).toEqual({ sub: '1234567890', name: 'John Doe', admin: true, aud: 'foo' })
   })
 
   it('should validate the audience using the domain', async function () {
@@ -338,7 +338,7 @@ describe('HS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -356,7 +356,7 @@ describe('HS256 JWT token validation', function () {
 
     expect(response.statusCode).toEqual(401)
 
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
@@ -392,7 +392,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -411,7 +411,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       header: {
         alg: 'RS256',
         kid: 'KEY',
@@ -439,7 +439,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -459,7 +459,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -483,7 +483,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     // expect(response.statusCode).toEqual(200)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
       admin: true,
@@ -500,7 +500,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
@@ -519,7 +519,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(500)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 500,
       error: 'Internal Server Error',
       message: 'Unable to get the JWS due to a HTTP error: [HTTP 404] {"error":"Not found."}'
@@ -534,7 +534,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Missing Key: Public key must be provided'
@@ -563,7 +563,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'error:09091064:PEM routines:PEM_read_bio_ex:bad base64 decode'
@@ -581,7 +581,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(500)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error',
@@ -631,7 +631,7 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
     })
 
-    const body = JSON.parse(response.body)
+    const body = response.json()
 
     expect(response.statusCode).toEqual(500)
     expect(body).toMatchObject({
@@ -662,7 +662,7 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256Valid}` }
     })
 
-    const body = JSON.parse(response.body)
+    const body = response.json()
 
     expect(response.statusCode).toEqual(500)
     expect(body).toMatchObject({
@@ -683,7 +683,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Missing Key: Public key must be provided'
@@ -696,7 +696,7 @@ describe('RS256 JWT token validation', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Missing Key: Public key must be provided'
@@ -717,7 +717,7 @@ describe('General error handling', function () {
     const response = await server.inject({ method: 'GET', url: '/verify' })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Missing Authorization HTTP header.'
@@ -728,7 +728,7 @@ describe('General error handling', function () {
     const response = await server.inject({ method: 'GET', url: '/verify', headers: { Authorization: 'FOO' } })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization header should be in format: Bearer [token].'
@@ -739,7 +739,7 @@ describe('General error handling', function () {
     const response = await server.inject({ method: 'GET', url: '/verify', headers: { Authorization: 'Bearer FOO' } })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
@@ -754,7 +754,7 @@ describe('General error handling', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Unsupported token.'
@@ -769,7 +769,7 @@ describe('General error handling', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Expired token.'
@@ -787,7 +787,7 @@ describe('General error handling', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
@@ -805,7 +805,7 @@ describe('General error handling', function () {
     })
 
     expect(response.statusCode).toEqual(401)
-    expect(JSON.parse(response.body)).toEqual({
+    expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Invalid token.'
