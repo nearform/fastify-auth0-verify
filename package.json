@@ -44,7 +44,7 @@
     "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
-    "fastify-jwt": "^2.1.2",
+    "fastify-jwt": "^3.0.0",
     "fastify-plugin": "^3.0.0",
     "http-errors": "^1.7.3",
     "node-cache": "^5.0.1",
