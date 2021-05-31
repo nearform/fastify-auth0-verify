@@ -814,7 +814,7 @@ describe('General error handling', function () {
 })
 
 describe('Cleanup', function () {
-  it('should close the cache when the server stops', async function (done) {
+  it('should close the cache when the server stops', function (done) {
     jest.resetModules()
     expect.assertions(1)
 
@@ -832,11 +832,11 @@ describe('Cleanup', function () {
       )
     )
 
-    const server = await buildServer({ secret: 'secret' })
-
-    server.close(() => {
-      expect(mockCache.close).toHaveBeenCalled()
-      done()
-    })
+    buildServer({ secret: 'secret' }).then(server => {
+      server.close(() => {
+        expect(mockCache.close).toHaveBeenCalled()
+        done()
+      })
+    }, done)
   })
 })
