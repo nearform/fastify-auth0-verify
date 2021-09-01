@@ -48,7 +48,7 @@
     "fastify-plugin": "^3.0.0",
     "http-errors": "^1.7.3",
     "node-cache": "^5.0.1",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^7.5.0",
