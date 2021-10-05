@@ -47,7 +47,6 @@ export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 
 }
 
 export type Authenticate = (request: FastifyRequest, reply: FastifyReply) => Promise<void>
-type JWTDecodedType = Record<string, unknown> | string
 
 /**
  * Auth0 verification plugin for Fastify, internally uses fastify-jwt and jsonwebtoken.
