@@ -1,8 +1,9 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import 'fastify-jwt'
 
-import { decode } from 'jsonwebtoken'
+import { DecodeOptions, JwtPayload, Jwt } from 'jsonwebtoken'
 import NodeCache from 'node-cache'
+
 
 export interface FastifyAuth0VerifyOptions {
   /**
@@ -46,6 +47,7 @@ export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 
 }
 
 export type Authenticate = (request: FastifyRequest, reply: FastifyReply) => Promise<void>
+type JWTDecodedType = Record<string, unknown> | string
 
 /**
  * Auth0 verification plugin for Fastify, internally uses fastify-jwt and jsonwebtoken.
@@ -61,7 +63,7 @@ declare module 'fastify' {
 
   interface FastifyRequest {
     auth0Verify: Auth0Verify
-    jwtDecode: typeof decode
+    jwtDecode: (options?: DecodeOptions & { complete: true } | DecodeOptions & { json: true } | DecodeOptions) => null | JwtPayload | Jwt
     auth0VerifySecretsCache: Pick<NodeCache, 'get' | 'set' | 'close'>
   }
 }
