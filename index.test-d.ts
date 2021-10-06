@@ -24,10 +24,10 @@ fastify.register(function (instance, _options, done) {
         json: true
       }
 
-      expectType<null | JwtPayload | Jwt>(request.jwtDecode(options))
-      expectType<null | JwtPayload | Jwt>(request.jwtDecode({ json: true }))
-      expectType<null | JwtPayload | Jwt>(request.jwtDecode({ complete: true }))
-      expectType<null | JwtPayload | Jwt>(request.jwtDecode())
+      expectType<null | JwtPayload | Jwt | string>(request.jwtDecode(options))
+      expectType<null | JwtPayload | Jwt | string>(request.jwtDecode({ json: true }))
+      expectType<null | JwtPayload | Jwt | string>(request.jwtDecode({ complete: true }))
+      expectType<null | JwtPayload | Jwt | string>(request.jwtDecode())
 
       reply.send(request.user)
     },
