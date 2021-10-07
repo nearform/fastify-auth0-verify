@@ -3,14 +3,13 @@
 const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
-const jwt = require('jsonwebtoken')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
 const forbiddenOptions = ['algorithms']
 
 const errorMessages = {
-  badHeaderFormat: 'Authorization header should be in format: Bearer [token].',
+  badHeaderFormat: 'Authorization header should be in format: Bearer [token].', // TODO: to remove
   expiredToken: 'Expired token.',
   invalidAlgorithm: 'Unsupported token.',
   invalidToken: 'Invalid token.',
@@ -21,8 +20,8 @@ const errorMessages = {
 }
 
 const fastifyJwtErrors = [
-  ['Format is Authorization: Bearer \\[token\\]', errorMessages.badHeaderFormat],
-  ['No Authorization was found in request\\.headers', errorMessages.missingHeader],
+  ['Format is Authorization: Bearer \\[token\\]', errorMessages.badHeaderFormat], // to remove
+  ['No Authorization was found in request\\.headers', errorMessages.missingHeader], // TODO: to remove
   ['token expired', errorMessages.expiredToken],
   ['invalid algorithm', errorMessages.invalidAlgorithm],
   [/(?:jwt malformed)|(?:invalid signature)|(?:jwt (?:audience|issuer) invalid)/, errorMessages.invalidToken]
@@ -129,12 +128,12 @@ async function getRemoteSecret(domain, alg, kid, cache) {
   }
 }
 
-function getSecret(request, reply, cb) {
-  const decoded = request.jwtDecode({ complete: true })
+async function getSecret(request, reply, cb) {
+  const decoded = await request.jwtDecode({ decode: { complete: true } })
 
   // The token is invalid, fastify-jwt will take care of it. For now return a empty key
   if (!decoded) {
-    cb(null, '')
+    return cb(null, '')
   }
 
   const { header } = decoded
@@ -150,23 +149,10 @@ function getSecret(request, reply, cb) {
     .catch(cb)
 }
 
-function jwtDecode(options = {}) {
-  if (!this.headers || !this.headers.authorization) {
-    throw new Unauthorized(errorMessages.missingHeader)
-  }
-
-  const authorization = this.headers.authorization
-
-  if (!authorization.match(/^Bearer\s+/)) {
-    throw new Unauthorized(errorMessages.badHeaderFormat)
-  }
-
-  return jwt.decode(authorization.split(/\s+/)[1].trim(), options)
-}
-
-async function authenticate(request, reply) {
+async function authenticate(request, reply, done) {
   try {
     await request.jwtVerify()
+    done()
   } catch (e) {
     for (const [jwtMessage, errorMessage] of fastifyJwtErrors) {
       if (e.message.match(jwtMessage)) {
@@ -191,7 +177,12 @@ function fastifyAuth0Verify(instance, options, done) {
     const auth0Options = verifyOptions(options)
 
     // Setup Fastify-JWT
-    instance.register(fastifyJwt, { verify: auth0Options.verify, secret: getSecret })
+    instance.register(fastifyJwt, {
+      verify: auth0Options.verify,
+      cookie: options.cookie,
+      secret: getSecret,
+      jwtDecode: 'jwtDecode'
+    })
 
     // Setup our decorators
     instance.decorate('authenticate', authenticate)
@@ -199,7 +190,6 @@ function fastifyAuth0Verify(instance, options, done) {
     instance.decorateRequest('auth0Verify', {
       getter: () => auth0Options
     })
-    instance.decorateRequest('jwtDecode', jwtDecode)
 
     const cache =
       ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false, close: () => undefined }

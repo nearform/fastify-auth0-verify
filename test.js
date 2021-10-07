@@ -97,7 +97,7 @@ async function buildServer(options) {
   const server = fastify()
 
   server.register(require('.'), options)
-
+  server.register(require('fastify-cookie'))
   server.register(function (instance, options, done) {
     instance.get('/verify', {
       async handler(request) {
@@ -109,8 +109,8 @@ async function buildServer(options) {
     instance.get('/decode', {
       async handler(request) {
         return {
-          regular: request.jwtDecode(),
-          full: request.jwtDecode({ complete: true })
+          regular: await request.jwtDecode(),
+          full: await request.jwtDecode({ decode: { complete: true } })
         }
       }
     })
@@ -202,18 +202,81 @@ describe('JWT token decoding', function () {
     expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
-      message: 'Missing Authorization HTTP header.'
+      message: 'No Authorization was found in request.headers'
     })
   })
 
   it('should complain if the HTTP Authorization header is in the wrong format', async function () {
     const response = await server.inject({ method: 'GET', url: '/decode', headers: { Authorization: 'FOO' } })
 
+    expect(response.statusCode).toEqual(400)
+    expect(response.json()).toEqual({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Format is Authorization: Bearer [token]'
+    })
+  })
+})
+
+describe('JWT cookie token decoding', function () {
+  let server
+
+  beforeAll(async function () {
+    server = await buildServer({ secret: 'secret', token: 'token', cookie: { cookieName: 'token' } })
+  })
+
+  afterAll(() => server.close())
+
+  it('should decode a JWT token from cookie', async function () {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/decode',
+      cookies: {
+        token: tokens.hs256Valid
+      }
+    })
+
+    expect(response.statusCode).toEqual(200)
+    expect(response.json()).toEqual({
+      regular: {
+        admin: true,
+        name: 'John Doe',
+        sub: '1234567890'
+      },
+      full: {
+        header: {
+          alg: 'HS256',
+          typ: 'JWT'
+        },
+        payload: {
+          admin: true,
+          name: 'John Doe',
+          sub: '1234567890'
+        },
+        signature: 'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'
+      }
+    })
+  })
+
+  it('should complain if the JWT token cookie is missing', async function () {
+    const response = await server.inject({ method: 'GET', url: '/decode', cookies: { foo: 'bar' } })
+
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
-      message: 'Authorization header should be in format: Bearer [token].'
+      message: 'No Authorization was found in request.cookies'
+    })
+  })
+
+  it('should complain if the JWT token cookie is in the wrong format', async function () {
+    const response = await server.inject({ method: 'GET', url: '/decode', cookies: { foo: 'bar' } })
+
+    expect(response.statusCode).toEqual(401)
+    expect(response.json()).toEqual({
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'No Authorization was found in request.cookies'
     })
   })
 })
