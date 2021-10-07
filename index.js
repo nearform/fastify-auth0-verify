@@ -128,31 +128,33 @@ async function getRemoteSecret(domain, alg, kid, cache) {
   }
 }
 
-async function getSecret(request, reply, cb) {
-  const decoded = await request.jwtDecode({ decode: { complete: true } })
+function getSecret(request, reply, cb) {
+  request
+    .jwtDecode({ decode: { complete: true } })
+    .then(decoded => {
+      // The token is invalid, fastify-jwt will take care of it. For now return a empty key
+      if (!decoded) {
+        return cb(null, '')
+      }
 
-  // The token is invalid, fastify-jwt will take care of it. For now return a empty key
-  if (!decoded) {
-    return cb(null, '')
-  }
+      const { header } = decoded
 
-  const { header } = decoded
+      // If the algorithm is not using RS256, the encryption key is Auth0 client secret
+      if (header.alg.startsWith('HS')) {
+        return cb(null, request.auth0Verify.secret)
+      }
 
-  // If the algorithm is not using RS256, the encryption key is Auth0 client secret
-  if (header.alg.startsWith('HS')) {
-    return cb(null, request.auth0Verify.secret)
-  }
-
-  // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
-  getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
-    .then(key => cb(null, key))
+      // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
+      getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
+        .then(key => cb(null, key))
+        .catch(cb)
+    })
     .catch(cb)
 }
 
-async function authenticate(request, reply, done) {
+async function authenticate(request, reply) {
   try {
     await request.jwtVerify()
-    done()
   } catch (e) {
     for (const [jwtMessage, errorMessage] of fastifyJwtErrors) {
       if (e.message.match(jwtMessage)) {
