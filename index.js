@@ -9,7 +9,7 @@ const NodeCache = require('node-cache')
 const forbiddenOptions = ['algorithms']
 
 const errorMessages = {
-  badHeaderFormat: 'Authorization header should be in format: Bearer [token].', // TODO: to remove
+  badHeaderFormat: 'Authorization header should be in format: Bearer [token].',
   expiredToken: 'Expired token.',
   invalidAlgorithm: 'Unsupported token.',
   invalidToken: 'Invalid token.',
@@ -20,8 +20,8 @@ const errorMessages = {
 }
 
 const fastifyJwtErrors = [
-  ['Format is Authorization: Bearer \\[token\\]', errorMessages.badHeaderFormat], // to remove
-  ['No Authorization was found in request\\.headers', errorMessages.missingHeader], // TODO: to remove
+  ['Format is Authorization: Bearer \\[token\\]', errorMessages.badHeaderFormat],
+  ['No Authorization was found in request\\.headers', errorMessages.missingHeader],
   ['token expired', errorMessages.expiredToken],
   ['invalid algorithm', errorMessages.invalidAlgorithm],
   [/(?:jwt malformed)|(?:invalid signature)|(?:jwt (?:audience|issuer) invalid)/, errorMessages.invalidToken]
