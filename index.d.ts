@@ -1,11 +1,16 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import 'fastify-jwt'
 
+import { DecodeOptions, JwtPayload, Jwt } from 'jsonwebtoken'
 import NodeCache from 'node-cache'
+
 
 export interface FastifyAuth0VerifyOptions {
   /**
-   * The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens.
+   * The Auth0 tenant domain. It enables verification of RS256 encoded 
+   
+   
+   tokens.
    * It is also used to verify the token issuer (iss).
    * Either provide a domain or the full URL, including the trailing slash (https://domain.com/).
    */
