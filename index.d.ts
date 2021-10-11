@@ -1,7 +1,6 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import 'fastify-jwt'
 
-import { decode } from 'jsonwebtoken'
 import NodeCache from 'node-cache'
 
 export interface FastifyAuth0VerifyOptions {
@@ -59,9 +58,8 @@ declare module 'fastify' {
     auth0Verify: Auth0Verify
   }
 
-  interface FastifyRequest {
+  interface FastifyRequest{
     auth0Verify: Auth0Verify
-    jwtDecode: typeof decode
     auth0VerifySecretsCache: Pick<NodeCache, 'get' | 'set' | 'close'>
   }
 }
