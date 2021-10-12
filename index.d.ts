@@ -60,7 +60,7 @@ declare module 'fastify' {
     auth0Verify: Auth0Verify
   }
 
-  interface FastifyRequest{
+  interface FastifyRequest {
     auth0Verify: Auth0Verify
     auth0VerifySecretsCache: Pick<NodeCache, 'get' | 'set' | 'close'>
   }
