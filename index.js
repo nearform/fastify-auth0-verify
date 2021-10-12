@@ -3,7 +3,6 @@
 const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
-const jwt = require('jsonwebtoken')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
@@ -130,38 +129,27 @@ async function getRemoteSecret(domain, alg, kid, cache) {
 }
 
 function getSecret(request, reply, cb) {
-  const decoded = request.jwtDecode({ complete: true })
+  request
+    .jwtDecode({ decode: { complete: true } })
+    .then(decoded => {
+      // The token is invalid, fastify-jwt will take care of it. For now return a empty key
+      if (!decoded) {
+        return cb(null, '')
+      }
 
-  // The token is invalid, fastify-jwt will take care of it. For now return a empty key
-  if (!decoded) {
-    cb(null, '')
-  }
+      const { header } = decoded
 
-  const { header } = decoded
+      // If the algorithm is not using RS256, the encryption key is Auth0 client secret
+      if (header.alg.startsWith('HS')) {
+        return cb(null, request.auth0Verify.secret)
+      }
 
-  // If the algorithm is not using RS256, the encryption key is Auth0 client secret
-  if (header.alg.startsWith('HS')) {
-    return cb(null, request.auth0Verify.secret)
-  }
-
-  // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
-  getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
-    .then(key => cb(null, key))
+      // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
+      getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
+        .then(key => cb(null, key))
+        .catch(cb)
+    })
     .catch(cb)
-}
-
-function jwtDecode(options = {}) {
-  if (!this.headers || !this.headers.authorization) {
-    throw new Unauthorized(errorMessages.missingHeader)
-  }
-
-  const authorization = this.headers.authorization
-
-  if (!authorization.match(/^Bearer\s+/)) {
-    throw new Unauthorized(errorMessages.badHeaderFormat)
-  }
-
-  return jwt.decode(authorization.split(/\s+/)[1].trim(), options)
 }
 
 async function authenticate(request, reply) {
@@ -191,7 +179,12 @@ function fastifyAuth0Verify(instance, options, done) {
     const auth0Options = verifyOptions(options)
 
     // Setup Fastify-JWT
-    instance.register(fastifyJwt, { verify: auth0Options.verify, secret: getSecret })
+    instance.register(fastifyJwt, {
+      verify: auth0Options.verify,
+      cookie: options.cookie,
+      secret: getSecret,
+      jwtDecode: 'jwtDecode'
+    })
 
     // Setup our decorators
     instance.decorate('authenticate', authenticate)
@@ -199,7 +192,6 @@ function fastifyAuth0Verify(instance, options, done) {
     instance.decorateRequest('auth0Verify', {
       getter: () => auth0Options
     })
-    instance.decorateRequest('jwtDecode', jwtDecode)
 
     const cache =
       ttl > 0 ? new NodeCache({ stdTTL: ttl }) : { get: () => undefined, set: () => false, close: () => undefined }

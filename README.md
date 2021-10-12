@@ -6,7 +6,7 @@
 
 <!-- [![Code Coverage](https://img.shields.io/codecov/c/gh/nearform/-verify?token=d0ae1643f35c4c4f9714a357f796d05d)](https://codecov.io/gh/nearform/fastify-auth0-verify) -->
 
-Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt) and [jsonwebtoken](https://npm.im/jsonwebtoken).
+Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt).
 
 ## Installation
 
@@ -26,14 +26,14 @@ Register as a plugin, providing one or more of the following options:
 - `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
 - `complete`: If to return also the header and signature of the verified token.
 - `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
+- `cookie`: Used to indicate that the token can be passed using cookie, instead of the Authorization header.
+  - `cookieName`: The name of the cookie.
 
 Once registered, your fastify instance and request will be decorated as describe by `fastify-jwt`.
 
-In addition, the request will also get `jwtDecode` and `authenticate` decorators.
+In addition, the request will also get the `authenticate` decorator.
 
-The first one is similar to `jwtVerify` but it just performs the JWT token decoding.
-
-The second one can be used as `preValidation` hook to add authenticate to your routes. The token information will be available in `request.user`.
+This decorator can be used as `preValidation` hook to add authenticate to your routes. The token information will be available in `request.user`.
 
 Example:
 
@@ -89,12 +89,10 @@ server.listen(APP_PORT, err => {
   }
 })
 
-```
-
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 
-Copyright NearForm Ltd 2019. Licensed under the [Apache-2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+Copyright NearForm Ltd. Licensed under the [Apache-2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
