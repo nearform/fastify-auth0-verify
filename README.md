@@ -6,7 +6,7 @@
 
 <!-- [![Code Coverage](https://img.shields.io/codecov/c/gh/nearform/-verify?token=d0ae1643f35c4c4f9714a357f796d05d)](https://codecov.io/gh/nearform/fastify-auth0-verify) -->
 
-Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt) and [jsonwebtoken](https://npm.im/jsonwebtoken).
+Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt).
 
 ## Installation
 
@@ -89,12 +89,10 @@ server.listen(APP_PORT, err => {
   }
 })
 
-```
-
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 
-Copyright NearForm Ltd 2019. Licensed under the [Apache-2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+Copyright NearForm Ltd. Licensed under the [Apache-2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
