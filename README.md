@@ -88,6 +88,7 @@ server.listen(APP_PORT, err => {
     throw err
   }
 })
+```
 
 ## Contributing
 
