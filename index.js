@@ -5,6 +5,7 @@ const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('fastify-jwt')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
+const jose = require('jose');
 
 const forbiddenOptions = ['algorithms']
 
@@ -52,15 +53,15 @@ function verifyOptions(options) {
     }
 
     verify.algorithms.push('RS256')
-    verify.issuer = issuer || domain
+    verify.allowedIss = issuer || domain
 
     if (audience) {
-      verify.audience = domain
+      verify.allowedAud = domain
     }
   }
 
   if (audience) {
-    verify.audience = audience === true ? domain : audience
+    verify.allowedAud = audience === true ? domain : audience
   }
 
   if (secret) {
@@ -115,9 +116,14 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
     const secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
 
+    // fastify-jwt doesn't support X509 certificates so we need to convert it to spki PEM key
+    // TODO: remove when the support is implemented 
+    const publicKey = await jose.importX509(secret, 'RS256')
+    const spkiPemKey = await jose.exportSPKI(publicKey)
+
     // Save the key in the cache
-    cache.set(cacheKey, secret)
-    return secret
+    cache.set(cacheKey, spkiPemKey)
+    return spkiPemKey
   } catch (e) {
     if (e.response) {
       throw InternalServerError(`${errorMessages.jwksHttpError}: [HTTP ${e.response.status}] ${JSON.stringify(e.body)}`)
