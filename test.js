@@ -639,7 +639,7 @@ describe('RS256 JWT token validation', function () {
     expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
-      message: 'The token algorithm is invalid.'
+      message: 'Authorization token is invalid: Unsupported PEM public key.'
     })
   })
 

@@ -2,10 +2,9 @@
 
 const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
-const fastifyJwt = require('fastify-jwt')
+const fastifyJwt = require('./../fastify-jwt/jwt')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
-const jose = require('jose');
 
 const forbiddenOptions = ['algorithms']
 
@@ -116,14 +115,9 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
     const secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
 
-    // fastify-jwt doesn't support X509 certificates so we need to convert it to spki PEM key
-    // TODO: remove when the support is implemented 
-    const publicKey = await jose.importX509(secret, 'RS256')
-    const spkiPemKey = await jose.exportSPKI(publicKey)
-
     // Save the key in the cache
-    cache.set(cacheKey, spkiPemKey)
-    return spkiPemKey
+    cache.set(cacheKey, secret)
+    return secret
   } catch (e) {
     if (e.response) {
       throw InternalServerError(`${errorMessages.jwksHttpError}: [HTTP ${e.response.status}] ${JSON.stringify(e.body)}`)
@@ -138,11 +132,6 @@ function getSecret(request, reply, cb) {
   request
     .jwtDecode({ decode: { complete: true } })
     .then(decoded => {
-      // The token is invalid, fastify-jwt will take care of it. For now return a empty key
-      if (!decoded) {
-        return cb(null, '')
-      }
-
       const { header } = decoded
 
       // If the algorithm is not using RS256, the encryption key is Auth0 client secret

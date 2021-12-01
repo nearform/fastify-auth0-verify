@@ -29,14 +29,12 @@ fastify.register(function (instance, _options, done) {
 
       const options: FastifyJwtDecodeOptions = {
         decode:{
-          complete: true,
-          json: true
+          complete: true
         },
         verify:{}
       }
 
       expectType<Promise<DecodePayloadType>>(request.jwtDecode(options))
-      expectType<Promise<DecodePayloadType>>(request.jwtDecode({decode:{ json: true }, verify:{}}))
       expectType<Promise<DecodePayloadType>>(request.jwtDecode({decode:{ complete: true }, verify:{}}))
       expectType<Promise<DecodePayloadType>>(request.jwtDecode())
 

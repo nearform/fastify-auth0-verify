@@ -1,9 +1,7 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import 'fastify-jwt'
 
-import { DecodeOptions, JwtPayload, Jwt } from 'jsonwebtoken'
 import NodeCache from 'node-cache'
-
 
 export interface FastifyAuth0VerifyOptions {
   /**
