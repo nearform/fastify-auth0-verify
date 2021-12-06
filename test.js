@@ -2,7 +2,10 @@
 
 'use strict'
 
+const { readFileSync } = require('fs')
+const path = require('path')
 const fastify = require('fastify')
+const { createSigner } = require('fast-jwt')
 const nock = require('nock')
 
 /* eslint-disable max-len */
@@ -25,60 +28,149 @@ const jwks = {
       alg: 'RS256',
       kid: 'KEY',
       x5c: [
-        `MIIFAzCCAuugAwIBAgIUVVehdczwTU8GW39JULd9pYi43ZkwDQYJKoZIhvcNAQEL
-        BQAwETEPMA0GA1UEAwwGdW51c2VkMB4XDTIxMTEzMDA5MDYyMVoXDTIxMTIzMDA5
-        MDYyMVowETEPMA0GA1UEAwwGdW51c2VkMIICIjANBgkqhkiG9w0BAQEFAAOCAg8A
-        MIICCgKCAgEAwvS4K8Jnx2b1nuab16/cEslS5HqvKS/Qs7+9X3B9RdC5fT//lyWQ
-        1lj4Ag9rX+ewzfBjZksgtfYAp5gmXJl/+E+dYEIry2XkC2AJZ9voqTa+hld6a8YW
-        OmvITSNc8GinP73gXBcwcv20Ligyg3c7LTn5ZSaNwJixpgsi9/3qz0WK9ArylHgD
-        LQ4hEEKMicYvSWoC6VnnWANKZ0EphyXYplie0EdEbcoje0+7qncu64Mm2LwYaFW3
-        RR1ZwrmzCUjX2MV3/L2h/gI3kSIgrkxSZS0gdcvFO9uAu5tfcJbpJj9NR+ynH4CL
-        Rl8OT8F4lyCdO55QTJUMUDb1zLDurVLOWYvfxVejsvmz3/tQy+/T9uV2dFBzOx9I
-        AbcI+kjGSCF+APi/ShDnME8nnkxKMTC/NO2wC2sAqgwhH+4fl1Lb2lyIUrwmWVEG
-        JBajQ26j/iGUGGlpZW3dWHa7NKtVE5bS1U5HBBWuqPlyMqhr4Pa053uJ678ywGpk
-        yQan1E00YP67u36HAP8hNZtXWPTvHRasek8nEeKcemfFcu563eqaPjbCkieE0yUe
-        6m6OU5tD8TM+Gbce1OievtPEcJrctb+xoFZNZ0k4gTUIqyJ3F/n3o1x5wYFdf/wi
-        9feoTOr2kfhFQqarFPUZAgKqOKANRZdsl54TkApTmpWvtrpXOfYoUlUCAwEAAaNT
-        MFEwHQYDVR0OBBYEFDwRuiSKlx21kCz3yeZGxM+Qw9b0MB8GA1UdIwQYMBaAFDwR
-        uiSKlx21kCz3yeZGxM+Qw9b0MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL
-        BQADggIBAAWS2FZI+ISovVC1gIbK+JAMlTGPpuawMe2N/38zLK1TUdA10rLqyQbF
-        31Sv/wj6IV6PDkuDhH3BzB04gQ0ZrIorqYG9wR3Y4ekcCr7pCkTbKo18I6TI7p3U
-        PN1t7W1VBt6PeXsXob+uhORhVtJH8+qqQswRlwobp9tF0xELJWHqs2JbWrfikb1R
-        tKv9IpsTXIyxab6iBGew4NLiGLEpk03ghjQLFWxC4/yvcF0TqZmSMO1IXDjSiK8t
-        6iBgLJFdyhSV7BTmHOV4ibdaEHdAfWmm4WvyQnHUZHIg4YgQuiyykqBHS1CLTIW4
-        sUjdDPJNTS7DKsKHrZUPnaOwQTRkkhjwC5tL6Fal+o8z1ogzbWJhhGeqq+KX6/Xb
-        K/NGMUhMdexh3fPmJ3wlEI2Ck7uni3CpPGnwckcoFpccwQjnkFj4TxhWDtf1yLxr
-        ne8EcVGQ9uuwsJjVboaujCovHChaRailpbBIV5Sc789iyLSZf+ylHv4dJcQ8UNJX
-        Wxqt7yJcfPnPGA3WGbvaJJuKtsWREE+Mf3ex7HL/RpX+6FX10m5GlwGKTNd0h2b8
-        qFPjP1tPZemAqxQntUkEGizSYxQ1bajAgrMjXeVNqz3Bah3WE7+pFbsH39h7fhtJ
-        L4HPfzHnmwS227fhAllgr8d7gc9vPgzLi9hKq6PMHqHRTPlytNMl`.trim()
+        `MIIFAzCCAuugAwIBAgIUYqKCXKygI2fvcK43voYleb27xYgwDQYJKoZIhvcNAQEL
+        BQAwETEPMA0GA1UEAwwGdW51c2VkMB4XDTIxMTIwNjA4NDIxOFoXDTIyMDEwNTA4
+        NDIxOFowETEPMA0GA1UEAwwGdW51c2VkMIICIjANBgkqhkiG9w0BAQEFAAOCAg8A
+        MIICCgKCAgEA4xLWpT1v6ZiQNp+seqlCBZCZESEt7HVWt+D5rxcQfqOKy0OUvONn
+        83N8Q2SybuJ7StD+S3pIm3SWqZXV6N369iJLM+DIyDa4/81NGNdsm6z9X9KTr44v
+        uVvljw4h8CbXUSPFdt4uvn0E+RybXfqsPNgFY21KeQZEruIJl/q3V3TvpdvpbFhg
+        0+7+piPwTS/oODP1ocY+oMutavrqdL0BWfwKSw/IVMH0PzhSyd28Yn5e98XHw7og
+        oDZgF5RYaNKKK/L5waU7KYI8bQwZ72v+qBhBKiC68ZaA9wGZlvNw08/IdE6zP5AY
+        4Mpcpd0BK7NC+R6HXlqcqp+Fgrn/3c/+nyPcNTH/O40LOLlxGG1d66utUPl5oatY
+        XIcH55GHrrXw5l31tQPxMT44B8FFtv2VAxYuXPzIbnMOlYJK4yu9n0j3PpN/rDWD
+        Ki7k9bLCNB26NOuwqdUrcpIBtbv/pqgFnOgbZVQfudsT9sGeNP5m6luT6KM/bZ3Z
+        ljyL1t1Skrtlym6LPAg7cNtfzN2wQfZGhOWraYT/qgkZbNsfaNxaLscrdxHwlvi/
+        5ObBGMNK33Dz1uY4rlan/fD/6wSUBKel7UlPq636/WTR/FYlttshp3RVD0nlAZEm
+        BYP5VfOfWsiXxYbVEnHyBUX6sS8RAtMwX3/qAbc6+2e/ymnRhyfZDcECAwEAAaNT
+        MFEwHQYDVR0OBBYEFMHvQkKUefNH3fepeNVVbGcWQAGlMB8GA1UdIwQYMBaAFMHv
+        QkKUefNH3fepeNVVbGcWQAGlMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL
+        BQADggIBAFbN5uDPyWg4vttGpihOrYszC5o172TOw/Tmp4ggtltLexJKSXd5UKVP
+        MD2oXJB1WW6YTae5hZSBcXUJ+Gmu54V7Ge2Lcv19zQkKu5OhJD0cn6L51s8iMdzP
+        5yvZRgM00+Pdzizl/NkZgSE/b6W9zEE4ZmhPa8aLKjKxQlv42HAUyFAqHiiPzOpq
+        +vDZPTz4lxnERfXnF4eVSMmkyB2f0T3ilIg+Mjwbe2m749FanVCse3E5cgPJVFYl
+        h2bs5/pb7rVfkRNt89IW7icZZGkqHn88y0EksjawF4O2eX5mCgEBM7/TCAWR84qW
+        OOhZzwxJh68NlzRfuvNqTLQrVdP0xQNFY3b7gWDRf6vqc7KGJr2cwqDsKXFQqqp0
+        IgA9Tfd8FNIgTnsR+RvybYQHcg60Vd4HlzxWqVs/d7baZLUIi4alFkBFQyuV0jAt
+        jXg+kbow83jsg57ZcIxdFD/2RZj34TCTvsoDuhZEgqgHZs07HfNbDRcQ195A8D3t
+        ax0dsIii8tCkffEyzRwmFgcGHBh+2CvH0/p5Sn8RdBqamjNgko7QqrYNMRMP3I71
+        lXoKOhH7jk9Nis2d2i+ktNy0IMQdWsV75FP+yE3CWTl10bMvCvccg0B1dVmxAbDZ
+        h7b8BjRiGIgwqVjdclzAy0sVMZHquiFvoiE78n5rndcI9jtzx0Ub`.trim()
       ]
     }
   ]
 }
 
-const tokens = {
-  hs256Valid:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
-  hs256ValidWithIssuer:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0LyJ9.u9d0l3FrgAx4b9njutSd_HVnBc7gO4fzvl6TLMRUdpE',
-  hs256ValidWithProvidedIssuer:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6ImZvbyJ9.ogCM7rsqPbUZHnoLz2LqkhA_wzTwgcqbIhjhN_B30iU',
-  hs256ValidWithAudience:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImF1ZCI6ImZvbyJ9.o3mwcXxXgB03_exatmCTSJNd7IKA8fUxMwJ-YJgzfzo',
-  hs256ValidWithDomainAsAudience:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0LyIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0LyJ9.cMQz_ndIi2Kab0YJsGLOP-719lQ3cb7Cm9eMwfmeXmw',
-  hs256InvalidSignature:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ-INVALID',
+const generateToken = (options, payload) => {
+  const signSync = createSigner(options)
+  return signSync(payload)
+}
 
-  rs256Valid:
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IktFWSJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0LyJ9.vTYivYeaq09ZqDltEg7ELc6CXAWAg78LjmG-g7pqEm9xCIJ9amCS9tGfo_bwnAdr-VYb96vAVsZQfWVROQExGZCj6OxDxrZNcwN0Dv62axRhT2TrDKG9qzZMt_Lt92oLTVG0o3FAM8v_ZztjA5u2AMYWAA4xHuuj5Jf1ZbSIL7L0J5MJ62yg1xY2pV_5jUoVORBLo2XW7WtUkYZRrq4_tsAE5LgwSF83SPkScAF2p-MYOtz3RsjlAfGSAj5WyF4MnGCuQeC4jxH_UrpIf43cQpVliA-vRKr3hH_mPrnU-S8hI-acM69z_yfO3P28H_cn7Lc3sg6MGKJhuM4us1BWfYafDxdqbSaIvjKNCXaPxWSLgwOhEmjovNfluPRWnNR6CT3qEg3g7Mkobj1QKIbw8bO0UzpKBZHQEqLP_MJnHlGEG8m0tHIpD3GKJnVmlepX-0w1DtE02hdYOlr40E-LfOlTAFpMHkPvCsO6LdDkGILAvtng0qUXmHsKkCw18BgdS9_z9e9NqSOmuCxqeEdq41rFgjdKXjb8qCiTdDsip65zq__onsL_ugG-oHOBurzvmkClVY6H4JiKv-BIPueZHwe-SYxdb2aBzgaS85calY_zf2Otmy1E2FE-0D4V3OwJ2JaJGcvSnDcWdHC2BVCQQ4U4bEuASX_EJv52mn-R6r8',
-  rs256ValidWithAudience:
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IktFWSJ9.eyJwYXlsb2FkIjp7InN1YiI6IjEyMzQ1Njc4OTAiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3QvIiwiYXVkIjoiZm9vIn19.bOf8yPkFz00m662SVzERGjFOemI666MOybiMseYJRRTsNAlVU3HiGNV-yzNxbyp87LI04XgJmIcSRq7T7ScbXRUk6TjXxXXLJsmCeoOMgu5o_zZQJBVgrmXMMl9adpsHeyK5gBlSWNyDY9AVuxrRSmvTSiBbbRe6GhT2SW2vmSAZi6G3CEWjTUL4bxoMV3VtykPq4mGvPpnJ8GnlybrDDZtSuw0Dncm0PVmYVYQXLlCzjNPI6LAcRzTh7rpDpSbcrOQxftX9VgpfXkIFXxnA4Yq7f7SfkQhZQDGIEzOvTs7pppF7uHFoCVdNXHzyMh3ck4PT00A_JQYxfVO8qksWFkLH0kjgcM7QfVz9BBF2Bl11OCNkfOkUJ-ZMUf2jq86GtcxbVtufciTu5KNg6jQolxhv1NRn9qXiO6D1wTiQhh336l1kZq5Jn2IV8r-Ezp8PvHgeEHSRN3yQcvbm1bDw9MMBz3QW3I71VEQGXAdANxMCzmN390gMX01JI9xO6T_t74AmX6qdgp5PSXiHiiDkwEqRPwamMMkniinmzxVUunTGlZob5ZZ29gbMBOC9B0o3HNloeciBq5Gii8Msiyv9_t_JYxUy0bjYUwRw129uo_HwE2j22RUe-rcGi7VNeH8eiF3_cZ6ZOGK6juQcfcACujS_8PgO5gWOY9JbvDTNxFc',
-  rs256ValidWithDomainAsAudience:
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IktFWSJ9.eyJwYXlsb2FkIjp7InN1YiI6IjEyMzQ1Njc4OTAiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3QvIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3QvIn19.WezQCeZUzPHwFCo-f9QyCidjRjx9A5mpMRSh_1YkpHRcBN8WYKk4Z7qa9_YVMlBCKUxmxcDY0uWzEWfGThH5dickju-iMH8LKuDEZFF8bT8c-HkWzokPqvlZHfUZN-3sBm7JMfWRa42aZrzrKVmBpe_qhkpqJBi62AuScSswUfno0dDmvNZHFyCRRLGg16uFjGQJ6xiWDGcV-EMFWTj8HqVeDdp6EWHCrl7OvbCRS2uz5XG70jzrNSMShjeXIPZDDG3DE3-pzOU89h6qI5tA6ScCl0cFxWei0l54yFGtR1qMGnqVsBAkTjhZsPl3LM_d_AqfpGImAcf32dT2pFZYJn2Q428ceJZdlBW2p4gLyLUHmCS2B7FRnyOu0r0bm8M3CQ5baNMOKMJzLDvelmlZsOYQ19D6868PqEapVZ9nRWuq5lZW6PD5Fz16TnSBrQ04Iy6FNxUpqp8zZShPp4ozAzbh9pOnHXba9N2EnNp9h8f4zmkAoPuU1A17zdtUoCDskydDDB9CANOVh4poN2RK-xzHvtV6rpBxRUGhVX8ZQaucnsiXCNaoke1eNKMJ_Yl0ReJcE2xVDpPDpInY4mHlTQp2-PMD_ZWdM-delLgE587rO_wcMP0O1W_yNtj-1Do1zpjkIU3-089XSK0oNFz4F7F_nHrcJUSAPG8gE_lHET0',
+const tokens = {
+  hs256Valid: generateToken(
+    { key: 'secret', noTimestamp: true },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  hs256ValidWithIssuer: generateToken(
+    { key: 'secret', noTimestamp: true, iss: 'https://localhost/' },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  hs256ValidWithProvidedIssuer: generateToken(
+    { key: 'secret', noTimestamp: true, iss: 'foo' },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  hs256ValidWithAudience: generateToken(
+    { key: 'secret', noTimestamp: true, aud: 'foo' },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  hs256ValidWithDomainAsAudience: generateToken(
+    { key: 'secret', noTimestamp: true, aud: 'https://localhost/', iss: 'https://localhost/' },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  hs256InvalidSignature:
+    generateToken(
+      { key: 'secret', noTimestamp: true },
+      {
+        admin: true,
+        name: 'John Doe',
+        sub: '1234567890'
+      }
+    ) + '-INVALID',
+
+  rs256Valid: generateToken(
+    {
+      key: readFileSync(`${path.join(__dirname, 'keys')}/private.key`, 'utf8'),
+      noTimestamp: true,
+      iss: 'https://localhost/',
+      kid: 'KEY'
+    },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  rs256ValidWithAudience: generateToken(
+    {
+      key: readFileSync(`${path.join(__dirname, 'keys')}/private.key`, 'utf8'),
+      noTimestamp: true,
+      iss: 'https://localhost/',
+      aud: 'foo',
+      kid: 'KEY'
+    },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
+  rs256ValidWithDomainAsAudience: generateToken(
+    {
+      key: readFileSync(`${path.join(__dirname, 'keys')}/private.key`, 'utf8'),
+      noTimestamp: true,
+      iss: 'https://localhost/',
+      aud: 'https://localhost/',
+      kid: 'KEY'
+    },
+    {
+      admin: true,
+      name: 'John Doe',
+      sub: '1234567890'
+    }
+  ),
   rs256InvalidSignature:
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IktFWSJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0LyJ9.aw0Kohn2NgCOrYXn0kflRc2D_NVUgKLFb_3pgifHOxqFmGs27SF7ypRW7noMQLUNCorBApPsiKJtShUkGRbxHIN5dXy1gnEtoX2f5WgLnUQxd_gTtTGuzznJIE0nyqfLA6Kz_nkGuPOGV6jv-UAf8yB0iHXIVjCrYXWc0TpPD0OU56mZGi8RkrRewkEraopirGgSkVW5D449vzVd64Nxz6ZeRWZCAGvoWYPbttiyZ2TEKg4q5W7_dx2OY6JtapT2SebYVsZleGYlSE735NScnWRBOwWz8HkkUtu27ZwiIRgc40OPqEhWOkxhCwnmMfQyH-DkqVWaN92rKPciQBEst1rODG_jRiPw8XisMkpLY_k7pTuMN27WMPZb9HC33WZ3cAeCpauKpFT-UF-_NdXRy8RuEFE85T_7nT75f3qQlNp8XV2AUVTv3fdUqY9Z6n55cPjoLDTqS81bQZl2TxMaLh7-PQfHcJLrygpMDuW7AJkJjy7-N3CMEd1yFrQ-TjezAng5sxN56uOkbpsQMTc-2Pat_s4VOWWyALnyoFcMKR_aLG6qgxfqEihk1-bGB5G57pmeUEAzI-xwdy_NdRhZg7K9nfKIBPAoGgjxIyz5WA7p26RjVmCS5ZSnvk7mzK0vX0kXqvAnXAwXFrXbN5y1iU6omidM6BCqdsHIVBUTgtg-INVALID',
+    generateToken(
+      {
+        key: readFileSync(`${path.join(__dirname, 'keys')}/private.key`, 'utf8'),
+        noTimestamp: true,
+        iss: 'https://localhost/',
+        kid: 'KEY'
+      },
+      {
+        admin: true,
+        name: 'John Doe',
+        sub: '1234567890'
+      }
+    ) + '-INVALID',
   rs256MissingKey:
     'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFOT1RIRVItS0VZIn0.eyJwYXlsb2FkIjp7InN1YiI6IjEyMzQ1Njc4OTAiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3QvIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3QvIn19.jZrn8F1RClAbb4P1JJR0XJ0KTw0U7DqQEd098AQhxjojb-6BfGwxABn-hIrFeQhDPs1-RtzCfoRJ0WvA40UoqAPf071gdlB5FFq95lUO_9B8XXby0ueUe-RdlqMkP3HvukLLFhQW481zBEVAyp8xSz-P1LsYHk6avCA1lAGMKZoh6FOsoE-cyBMKF0koc2MWUPvu6BYr48gyX50QKBr_yrSdfLgQj67tcMicvESddwZX1ggr7eF4ZeHXVZV_F_AMkOywiEkiS4EvC2gywNJkbIz3eLqsQFYYzUhMsQfu5x-YfSw3-pmEtw7SQZ-QeP2zs1sZP0tcJJ03ya-dcG1E7IindR1eAoji6CYtRElF0DMsIgV-Cd6NB1Vx5R-Le15MROuvArGisJKOlHYf79g1-1hWC5LAtQ0eAR5gkeRRX6UjUL_kCMVtf69qed74mq-nA4P2BNW72CL9SzjPwmNeUVfGdui10NLMt9QAs8jcYksgeMiMoQW6NVvsc9ptKmynmTJzCEP1s-Jgv0erMIIe5_mU9YnihZHJ19dL7BDvg0YV_tP3i6vRXqJsYBx43YPKMwiI5OKRSregfRLvq66JSlL7k2hfIVRLhJc-tvaxoeewDJc1qksc-qgsBWwQ7lVpQlj_mBbmzujXmj99nQJfqpV9iPS5WPPCbtJTeTlXcP8',
 
@@ -186,13 +278,13 @@ describe('JWT token decoding', function () {
           typ: 'JWT'
         },
         input:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9',
         payload: {
           admin: true,
           name: 'John Doe',
           sub: '1234567890'
         },
-        signature: 'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'
+        signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
       }
     })
   })
@@ -251,13 +343,13 @@ describe('JWT cookie token decoding', function () {
           typ: 'JWT'
         },
         input:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9',
         payload: {
           admin: true,
           name: 'John Doe',
           sub: '1234567890'
         },
-        signature: 'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'
+        signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
       }
     })
   })
@@ -319,7 +411,7 @@ describe('HS256 JWT token validation', function () {
     expect(response.json()).toEqual({
       header: { alg: 'HS256', typ: 'JWT' },
       payload: { sub: '1234567890', name: 'John Doe', admin: true },
-      signature: 'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'
+      signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
     })
   })
 
@@ -491,7 +583,7 @@ describe('RS256 JWT token validation', function () {
         iss: 'https://localhost/'
       },
       signature:
-        'vTYivYeaq09ZqDltEg7ELc6CXAWAg78LjmG-g7pqEm9xCIJ9amCS9tGfo_bwnAdr-VYb96vAVsZQfWVROQExGZCj6OxDxrZNcwN0Dv62axRhT2TrDKG9qzZMt_Lt92oLTVG0o3FAM8v_ZztjA5u2AMYWAA4xHuuj5Jf1ZbSIL7L0J5MJ62yg1xY2pV_5jUoVORBLo2XW7WtUkYZRrq4_tsAE5LgwSF83SPkScAF2p-MYOtz3RsjlAfGSAj5WyF4MnGCuQeC4jxH_UrpIf43cQpVliA-vRKr3hH_mPrnU-S8hI-acM69z_yfO3P28H_cn7Lc3sg6MGKJhuM4us1BWfYafDxdqbSaIvjKNCXaPxWSLgwOhEmjovNfluPRWnNR6CT3qEg3g7Mkobj1QKIbw8bO0UzpKBZHQEqLP_MJnHlGEG8m0tHIpD3GKJnVmlepX-0w1DtE02hdYOlr40E-LfOlTAFpMHkPvCsO6LdDkGILAvtng0qUXmHsKkCw18BgdS9_z9e9NqSOmuCxqeEdq41rFgjdKXjb8qCiTdDsip65zq__onsL_ugG-oHOBurzvmkClVY6H4JiKv-BIPueZHwe-SYxdb2aBzgaS85calY_zf2Otmy1E2FE-0D4V3OwJ2JaJGcvSnDcWdHC2BVCQQ4U4bEuASX_EJv52mn-R6r8' // eslint-disable-line max-len
+        'HYgGxrwl3vthMChCy44eg-VK0x_SR-mf6761VI9jNk9rMqKZmFcabE7dVUA_hCKFXyj7VL7bJ09i3PxYFkj78PMz28B9hZz_h4ntVuafPmDL9FCHvW91oZTJRhosNor2yyUFcx6ijfu6WeUTZRtQdBqvcAgtKutNl9H0Q0wff-Jn10ViiFJTEmiaC-XhoZFjZQee7_bS7mOZtJCZeH69D_CWrCf4I-N2nl8U1sVHp-H0fRCc5D5SvlIhCsIXYJoFDRAuTtRvwrXXVPlIPugCeJ8l91S-GbIEEUejDCE8JPW9bEGfKoAFBiIbnRBSb4hKEbdFUqWHk-5_YOLzvPnq57vlCB8yeC10exEgiSeSb74tXGZyB4z540Mjt-2k9O9t7Uz1ICDZHvrYLUN2wzlSKqSucOvr5YpH8y-iLaWqAQeiR2b6w0u_c9kMEgzCAaobJp4QxjGkKHfYNmUFlV1uoY5_I2CBls-ICr0_E9PicMBnddg_JG8KabqAmZObCrkM5WRxSPPNLTElmw80MACxFqgaKxsMg-6uqmgTwy9ie9TjYVVdL1pdxWWaLDhzpDN1mmdTuIazfnSaib7PnzgPPgHlN7TnSCmCnYzffAg-i2Fz8JOhiK50mF86hc8n6em6K7cbVLm0nQcA4249D88Um9KBs8AoPXov8HGAS4Khwhk' // eslint-disable-line max-len
     })
   })
 
@@ -507,13 +599,11 @@ describe('RS256 JWT token validation', function () {
 
     expect(response.statusCode).toEqual(200)
     expect(response.json()).toEqual({
-      payload: {
-        sub: '1234567890',
-        name: 'John Doe',
-        admin: true,
-        iss: 'https://localhost/',
-        aud: 'foo'
-      }
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'https://localhost/',
+      aud: 'foo'
     })
   })
 
@@ -529,13 +619,11 @@ describe('RS256 JWT token validation', function () {
 
     expect(response.statusCode).toEqual(200)
     expect(response.json()).toEqual({
-      payload: {
-        sub: '1234567890',
-        name: 'John Doe',
-        admin: true,
-        iss: 'https://localhost/',
-        aud: 'https://localhost/'
-      }
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'https://localhost/',
+      aud: 'https://localhost/'
     })
   })
 
@@ -555,13 +643,11 @@ describe('RS256 JWT token validation', function () {
 
     // expect(response.statusCode).toEqual(200)
     expect(response.json()).toEqual({
-      payload: {
-        sub: '1234567890',
-        name: 'John Doe',
-        admin: true,
-        iss: 'https://localhost/',
-        aud: 'foo'
-      }
+      sub: '1234567890',
+      name: 'John Doe',
+      admin: true,
+      iss: 'https://localhost/',
+      aud: 'foo'
     })
   })
 

@@ -2,7 +2,7 @@
 
 const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
-const fastifyJwt = require('./../fastify-jwt/jwt')
+const fastifyJwt = require('fastify-jwt')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
