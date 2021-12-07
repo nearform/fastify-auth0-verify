@@ -52,15 +52,15 @@ function verifyOptions(options) {
     }
 
     verify.algorithms.push('RS256')
-    verify.issuer = issuer || domain
+    verify.allowedIss = issuer || domain
 
     if (audience) {
-      verify.audience = domain
+      verify.allowedAud = domain
     }
   }
 
   if (audience) {
-    verify.audience = audience === true ? domain : audience
+    verify.allowedAud = audience === true ? domain : audience
   }
 
   if (secret) {
@@ -132,11 +132,6 @@ function getSecret(request, reply, cb) {
   request
     .jwtDecode({ decode: { complete: true } })
     .then(decoded => {
-      // The token is invalid, fastify-jwt will take care of it. For now return a empty key
-      if (!decoded) {
-        return cb(null, '')
-      }
-
       const { header } = decoded
 
       // If the algorithm is not using RS256, the encryption key is Auth0 client secret

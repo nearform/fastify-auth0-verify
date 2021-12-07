@@ -1,0 +1,27 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: "The semver to use"
+        required: true
+        default: "patch"
+      tag:
+        description: "The npm tag"
+        required: false
+        default: "latest"
+  pull_request:
+    types: [closed]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: nearform/optic-release-automation-action@2.3.0
+        with:
+          github-token: ${{secrets.github_token}}
+          npm-token: ${{secrets.NPM_TOKEN}}
+          optic-token: ${{secrets.OPTIC_TOKEN}}
+          semver: ${{ github.event.inputs.semver }}
+          npm-tag: ${{ github.event.inputs.tag }}
