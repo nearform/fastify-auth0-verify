@@ -641,7 +641,7 @@ describe('RS256 JWT token validation', function () {
       headers: { Authorization: `Bearer ${tokens.rs256ValidWithAudience}` }
     })
 
-    // expect(response.statusCode).toEqual(200)
+    expect(response.statusCode).toEqual(200)
     expect(response.json()).toEqual({
       sub: '1234567890',
       name: 'John Doe',
@@ -905,20 +905,20 @@ describe('General error handling', function () {
     })
   })
 
-  // it('should complain if the JWT token has an unsupported algorithm', async function () {
-  //   const response = await server.inject({
-  //     method: 'GET',
-  //     url: '/verify',
-  //     headers: { Authorization: `Bearer ${tokens.unsupportedAlgorithm}` }
-  //   })
+  it('should complain if the JWT token has an unsupported algorithm', async function () {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.unsupportedAlgorithm}` }
+    })
 
-  //   expect(response.statusCode).toEqual(401)
-  //   expect(response.json()).toEqual({
-  //     statusCode: 401,
-  //     error: 'Unauthorized',
-  //     message: 'The token algorithm is invalid.'
-  //   })
-  // })
+    expect(response.statusCode).toEqual(401)
+    expect(response.json()).toEqual({
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'The token algorithm is invalid.'
+    })
+  })
 
   it('should complain if the JWT token has expired', async function () {
     const response = await server.inject({
