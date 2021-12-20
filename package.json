@@ -48,7 +48,7 @@
     "fastify-cookie": "^5.3.1",
     "fastify-jwt": "^4.1.0",
     "fastify-plugin": "^3.0.0",
-    "http-errors": "^1.7.3",
+    "http-errors": "^2.0.0",
     "node-cache": "^5.0.1",
     "node-fetch": "^2.6.1"
   },
