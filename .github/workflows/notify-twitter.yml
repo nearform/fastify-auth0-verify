@@ -12,7 +12,7 @@ jobs:
       - uses: nearform/github-action-notify-twitter@v1
         with:
           message: |
-            ${{ github.event.repository.name }} ${{ github.event.release.tag_name }} has been released. Check out the release notes: ${{ github.event.release.html_url }} #opensource #fastify #auth0
+            ${{ github.event.repository.name }} ${{ github.event.release.tag_name }} has been released. Check out the release notes: ${{ github.event.release.html_url }} #opensource #fastifyjs #auth0 @fastifyjs
           twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
           twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
           twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
