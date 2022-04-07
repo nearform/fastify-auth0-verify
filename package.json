@@ -38,9 +38,9 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "jest test --coverage --coverageReporters=html --coverageReporters=text && tsd",
-    "ci": "npm run lint && jest --coverage --ci --coverageReporters=json && tsd",
+    "test:ci": "npm run lint && jest --coverage --ci --coverageReporters=json && tsd",
     "lint": "eslint index.js test.js",
-    "prepublishOnly": "npm run ci",
+    "prepublishOnly": "npm run test:ci",
     "postpublish": "git push origin && git push origin -f --tags",
     "tsd": "tsd"
   },

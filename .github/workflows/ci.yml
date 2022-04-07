@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm install
-      - run: npm run ci
+      - run: npm run test:ci
       
   automerge:
     needs: build
