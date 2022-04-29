@@ -1,8 +1,8 @@
 import Fastify from 'fastify'
 import fastifyAuth0Verify from '.'
 import { expectAssignable, expectType } from 'tsd'
-import { DecodePayloadType, FastifyJwtDecodeOptions } from 'fastify-jwt'
-import fastifyJWT from 'fastify-jwt'
+import { DecodePayloadType, FastifyJwtDecodeOptions } from '@fastify/jwt'
+import fastifyJWT from '@fastify/jwt'
 
 const fastify = Fastify()
 
