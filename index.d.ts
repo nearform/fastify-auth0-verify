@@ -1,5 +1,5 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
-import 'fastify-jwt'
+import '@fastify/jwt'
 
 import NodeCache from 'node-cache'
 
@@ -47,7 +47,7 @@ export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 
 export type Authenticate = (request: FastifyRequest, reply: FastifyReply) => Promise<void>
 
 /**
- * Auth0 verification plugin for Fastify, internally uses fastify-jwt and jsonwebtoken.
+ * Auth0 verification plugin for Fastify, internally uses @fastify/jwt and jsonwebtoken.
  */
 export const fastifyAuth0Verify: FastifyPluginCallback<FastifyAuth0VerifyOptions>
 export default fastifyAuth0Verify

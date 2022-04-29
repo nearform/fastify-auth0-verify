@@ -2,7 +2,7 @@
 
 const { Unauthorized, InternalServerError } = require('http-errors')
 const fastifyPlugin = require('fastify-plugin')
-const fastifyJwt = require('fastify-jwt')
+const fastifyJwt = require('@fastify/jwt')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
 
@@ -173,7 +173,7 @@ function fastifyAuth0Verify(instance, options, done) {
 
     const auth0Options = verifyOptions(options)
 
-    // Setup Fastify-JWT
+    // Setup @fastify/jwt
     instance.register(fastifyJwt, {
       verify: auth0Options.verify,
       cookie: options.cookie,

@@ -3,7 +3,7 @@
 [![Package Version](https://img.shields.io/npm/v/fastify-auth0-verify.svg)](https://npm.im/fastify-auth0-verify)
 [![ci](https://github.com/nearform/fastify-auth0-verify/actions/workflows/ci.yml/badge.svg)](https://github.com/nearform/fastify-auth0-verify/actions/workflows/ci.yml)
 
-Auth0 verification plugin for Fastify, internally uses [fastify-jwt](https://npm.im/fastify-jwt).
+Auth0 verification plugin for Fastify, internally uses [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt).
 
 ## Installation
 
@@ -26,7 +26,7 @@ Register as a plugin, providing one or more of the following options:
 - `cookie`: Used to indicate that the token can be passed using cookie, instead of the Authorization header.
   - `cookieName`: The name of the cookie.
 
-Once registered, your fastify instance and request will be decorated as describe by `fastify-jwt`.
+Once registered, your fastify instance and request will be decorated as describe by `@fastify/jwt`.
 
 In addition, the request will also get the `authenticate` decorator.
 

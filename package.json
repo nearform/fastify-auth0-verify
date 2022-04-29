@@ -45,8 +45,8 @@
     "tsd": "tsd"
   },
   "dependencies": {
+    "@fastify/jwt": "^5.0.0",
     "fastify-cookie": "^5.3.1",
-    "fastify-jwt": "4.2.0",
     "fastify-plugin": "^3.0.0",
     "http-errors": "^2.0.0",
     "node-cache": "^5.0.1",
