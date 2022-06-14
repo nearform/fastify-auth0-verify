@@ -189,7 +189,7 @@ async function buildServer(options) {
   const server = fastify()
 
   server.register(require('.'), options)
-  server.register(require('fastify-cookie'))
+  server.register(require('@fastify/cookie'))
   server.register(function (instance, options, done) {
     instance.get('/verify', {
       async handler(request) {
