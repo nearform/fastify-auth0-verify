@@ -210,7 +210,7 @@ async function buildServer(options) {
     done()
   })
 
-  await server.listen(0)
+  await server.listen({ port: 0 })
 
   return server
 }
@@ -294,6 +294,7 @@ describe('JWT token decoding', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_NO_AUTHORIZATION_IN_HEADER',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'No Authorization was found in request.headers'
@@ -305,6 +306,7 @@ describe('JWT token decoding', function () {
 
     expect(response.statusCode).toEqual(400)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_BAD_REQUEST',
       statusCode: 400,
       error: 'Bad Request',
       message: 'Format is Authorization: Bearer [token]'
@@ -359,6 +361,7 @@ describe('JWT cookie token decoding', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_NO_AUTHORIZATION_IN_COOKIE',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'No Authorization was found in request.cookies'
@@ -370,6 +373,7 @@ describe('JWT cookie token decoding', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_NO_AUTHORIZATION_IN_COOKIE',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'No Authorization was found in request.cookies'
@@ -516,6 +520,7 @@ describe('HS256 JWT token validation', function () {
     expect(response.statusCode).toEqual(401)
 
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization token is invalid: The token signature is invalid.'
@@ -660,6 +665,7 @@ describe('RS256 JWT token validation', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization token is invalid: The token signature is invalid.'
@@ -723,6 +729,7 @@ describe('RS256 JWT token validation', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization token is invalid: Unsupported PEM public key.'
@@ -947,6 +954,7 @@ describe('General error handling', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization token is invalid: The iss claim value is not allowed.'
@@ -965,6 +973,7 @@ describe('General error handling', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
       message: 'Authorization token is invalid: The aud claim value is not allowed.'
