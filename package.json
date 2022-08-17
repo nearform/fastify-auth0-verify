@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@fastify/jwt": "^6.1.0",
-    "@fastify/cookie": "^7.0.0",
+    "@fastify/cookie": "^8.0.0",
     "fastify-plugin": "^4.0.0",
     "http-errors": "^2.0.0",
     "node-cache": "^5.0.1",
