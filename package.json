@@ -45,8 +45,8 @@
     "tsd": "tsd"
   },
   "dependencies": {
-    "@fastify/jwt": "^6.1.0",
     "@fastify/cookie": "^8.0.0",
+    "@fastify/jwt": "^6.1.0",
     "fastify-plugin": "^4.0.0",
     "http-errors": "^2.0.0",
     "node-cache": "^5.0.1",
@@ -57,7 +57,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-n": "^15.2.5",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.1",
     "fast-jwt": "^1.4.0",
