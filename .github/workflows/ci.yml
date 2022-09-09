@@ -1,6 +1,6 @@
 name: ci
 on:
-  push: null
+  push:
   pull_request:
     branches:
       - master
