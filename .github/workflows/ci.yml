@@ -1,17 +1,17 @@
 name: ci
-
 on:
-  push:
+  push: null
   pull_request:
     branches:
       - master
-
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [14, 16]
+        node:
+          - 14
+          - 16
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -19,14 +19,11 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run test:ci
-      
   automerge:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-     pull-requests: write
-     contents: write       
+      pull-requests: write
+      contents: write
     steps:
       - uses: fastify/github-action-merge-dependabot@v3
-        with:
-          github-token: ${{ secrets.github_token }}
