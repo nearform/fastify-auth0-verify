@@ -21,7 +21,7 @@ export interface FastifyAuth0VerifyOptions {
    * By default the domain will be also used as audience.
    * Accepts a string value, or an array of strings for multiple issuers.
    */
-  readonly issuer?: string
+  readonly issuer?: string | string[]
   /**
    * The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
    */
