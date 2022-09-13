@@ -25,6 +25,7 @@ Register as a plugin, providing one or more of the following options:
 - `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
 - `cookie`: Used to indicate that the token can be passed using cookie, instead of the Authorization header.
   - `cookieName`: The name of the cookie.
+  - `signed`: Indicates whether the cookie is signed or not. If set to `true`, the JWT will be verified using the unsigned value.
 
 Once registered, your fastify instance and request will be decorated as describe by `@fastify/jwt`.
 
