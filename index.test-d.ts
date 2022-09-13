@@ -19,7 +19,13 @@ fastify.register(fastifyAuth0Verify, {
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
 fastify.register(fastifyJWT, {
-  secret: '<jwt secret>',
+  secret: '<jwt secret>'
+})
+fastify.register(fastifyAuth0Verify, {
+  cookie: {
+    cookieName: '<cookie>',
+    signed: true
+  }
 })
 
 fastify.register(function (instance, _options, done) {

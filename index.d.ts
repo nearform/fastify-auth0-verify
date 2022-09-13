@@ -35,6 +35,22 @@ export interface FastifyAuth0VerifyOptions {
    * again using well known JWKS URLS. Setting to 0 or less disables the cache.
    */
   readonly secretsTtl?: string | number
+
+  /**
+   * Used to indicate that the token can be passed using cookie, instead of the Authorization header.
+   */
+  readonly cookie?: {
+    /**
+     *  The name of the cookie.
+     */
+    cookieName: string
+
+    /**
+     *  Indicates whether the cookie is signed or not. If set to `true`, the JWT
+     *  will be verified using the unsigned value.
+     */
+    signed?: boolean
+  }
 }
 
 export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 'audience' | 'secret'> {
