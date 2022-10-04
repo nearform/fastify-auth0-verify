@@ -751,7 +751,9 @@ describe('RS256 JWT token validation', function () {
       code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error',
-      message: 'request to https://localhost/.well-known/jwks.json failed, reason: connect ECONNREFUSED 127.0.0.1:443'
+      message: expect.stringMatching(
+        /request to https:\/\/localhost\/.well-known\/jwks.json failed, reason: connect ECONNREFUSED (127.0.0.1|::1):443/
+      )
     })
   })
 
