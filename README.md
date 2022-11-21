@@ -27,6 +27,8 @@ Register as a plugin, providing one or more of the following options:
   - `cookieName`: The name of the cookie.
   - `signed`: Indicates whether the cookie is signed or not. If set to `true`, the JWT will be verified using the unsigned value.
 
+Since this plugin is based on the [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt) `verifier`, it is also possibile to pass the options documented [here](https://github.com/fastify/fastify-jwt#verify) such as `cache` and `cacheTTL`.
+
 Once registered, your fastify instance and request will be decorated as describe by `@fastify/jwt`.
 
 In addition, the request will also get the `authenticate` decorator.
