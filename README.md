@@ -18,8 +18,8 @@ npm install fastify-auth0-verify --save
 Register as a plugin, providing one or more of the following options:
 
 - `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain or the full URL, including the trailing slash (`https://domain.com/`).
-- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers. 
-- `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers. 
+- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers.
+- `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers.
 - `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
 - `complete`: If to return also the header and signature of the verified token.
 - `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
@@ -27,7 +27,7 @@ Register as a plugin, providing one or more of the following options:
   - `cookieName`: The name of the cookie.
   - `signed`: Indicates whether the cookie is signed or not. If set to `true`, the JWT will be verified using the unsigned value.
 
-Since this plugin is based on the [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt) `verifier`, it is also possibile to pass the options documented [here](https://github.com/fastify/fastify-jwt#verify) such as `cache` and `cacheTTL`.
+Since this plugin is based on the [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt) `verify`, it is also possibile to pass the options documented [here](https://github.com/fastify/fastify-jwt#verify), see the example below.
 
 Once registered, your fastify instance and request will be decorated as describe by `@fastify/jwt`.
 
@@ -41,13 +41,13 @@ Example:
 const server = require('fastify')()
 
 server.register(require('fastify-auth0-verify'), {
-  domain: "<auth0 auth domain>",
-  audience: "<auth0 app audience>",
+  domain: '<auth0 auth domain>',
+  audience: '<auth0 app audience>'
 })
 
-server.register(function(instance, _options, done) {
+server.register(function (instance, _options, done) {
   instance.get('/verify', {
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       reply.send(request.user)
     },
     preValidation: instance.authenticate
@@ -63,7 +63,7 @@ server.listen(0, err => {
 })
 ```
 
-You can configure there to be more than one Auth0 API audiences: 
+You can configure there to be more than one Auth0 API audiences:
 
 ```js
 const server = require('fastify')()
@@ -73,9 +73,9 @@ server.register(require('fastify-auth0-verify'), {
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
 
-server.register(function(instance, _options, done) {
+server.register(function (instance, _options, done) {
   instance.get('/verify', {
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       reply.send(request.user)
     },
     preValidation: instance.authenticate
@@ -87,6 +87,18 @@ server.listen(APP_PORT, err => {
   if (err) {
     throw err
   }
+})
+```
+
+You can include [@fastify/jwt verify](https://github.com/fastify/fastify-jwt#verify) options:
+
+```js
+server.register(require('fastify-auth0-verify'), {
+  domain: '<auth0 auth domain>',
+  audience: ['<auth0 app audience>', '<auth0 admin audience>'],
+  cache: true, // @fastify/jwt cache
+  cacheTTL: 100, // @fastify/jwt cache ttl
+  errorCacheTTL: -1 // @fastify/jwt error cache ttl
 })
 ```
 
