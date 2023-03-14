@@ -908,9 +908,10 @@ describe('General error handling', function () {
 
     expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
-      message: 'The token is malformed.'
+      message: 'Authorization token is invalid: The token is malformed.'
     })
   })
 
