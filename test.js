@@ -391,7 +391,9 @@ describe('format decoded token', function () {
       cookie: { cookieName: 'token' },
       formatUser: user => {
         return {
-          foo: user.name
+          sub: user.sub,
+          username: user.name,
+          admin: user.admin
         }
       }
     })
@@ -399,37 +401,15 @@ describe('format decoded token', function () {
 
   afterAll(() => server.close())
 
-  it('should decode a JWT token from cookie', async function () {
+  it('should format verified user', async function () {
     const response = await server.inject({
       method: 'GET',
-      url: '/decode',
-      cookies: {
-        token: tokens.hs256Valid
-      }
+      url: '/verify',
+      headers: { Authorization: `Bearer ${tokens.hs256Valid}` }
     })
 
     expect(response.statusCode).toEqual(200)
-    expect(response.json()).toEqual({
-      regular: {
-        admin: true,
-        name: 'John Doe',
-        sub: '1234567890'
-      },
-      full: {
-        header: {
-          alg: 'HS256',
-          typ: 'JWT'
-        },
-        input:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9',
-        payload: {
-          admin: true,
-          name: 'John Doe',
-          sub: '1234567890'
-        },
-        signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
-      }
-    })
+    expect(response.json()).toEqual({ sub: '1234567890', username: 'John Doe', admin: true })
   })
 })
 
