@@ -51,6 +51,10 @@ export interface FastifyAuth0VerifyOptions {
      */
     signed?: boolean
   }
+  /**
+   * You may customize the request.user object setting a custom sync function as parameter:
+   */
+  readonly formatUser?: (user) => any
 }
 
 export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 'audience' | 'secret'> {

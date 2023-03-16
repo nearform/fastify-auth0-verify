@@ -381,6 +381,58 @@ describe('JWT cookie token decoding', function () {
   })
 })
 
+describe('format decoded token', function () {
+  let server
+
+  beforeAll(async function () {
+    server = await buildServer({
+      secret: 'secret',
+      token: 'token',
+      cookie: { cookieName: 'token' },
+      formatUser: user => {
+        return {
+          foo: user.name
+        }
+      }
+    })
+  })
+
+  afterAll(() => server.close())
+
+  it('should decode a JWT token from cookie', async function () {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/decode',
+      cookies: {
+        token: tokens.hs256Valid
+      }
+    })
+
+    expect(response.statusCode).toEqual(200)
+    expect(response.json()).toEqual({
+      regular: {
+        admin: true,
+        name: 'John Doe',
+        sub: '1234567890'
+      },
+      full: {
+        header: {
+          alg: 'HS256',
+          typ: 'JWT'
+        },
+        input:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9',
+        payload: {
+          admin: true,
+          name: 'John Doe',
+          sub: '1234567890'
+        },
+        signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
+      }
+    })
+  })
+})
+
 describe('HS256 JWT token validation', function () {
   let server
 
