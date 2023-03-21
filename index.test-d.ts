@@ -33,7 +33,7 @@ fastify.register(fastifyAuth0Verify, {
   domain: '<auth0 auth domain>',
   issuer: '<auth0 issuer>',
   audience: '<auth0 app audience>',
-  formatUser: ()=>({foo: 'bar'}),
+  formatUser: () => ({ foo: 'bar' }),
 })
 
 fastify.register(function (instance, _options, done) {
