@@ -178,7 +178,8 @@ function fastifyAuth0Verify(instance, options, done) {
       verify: auth0Options.verify,
       cookie: options.cookie,
       secret: getSecret,
-      jwtDecode: 'jwtDecode'
+      jwtDecode: 'jwtDecode',
+      formatUser: options.formatUser
     })
 
     // Setup our decorators

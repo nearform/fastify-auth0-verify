@@ -1,5 +1,5 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
-import '@fastify/jwt'
+import { UserType, SignPayloadType } from '@fastify/jwt'
 
 import NodeCache from 'node-cache'
 
@@ -51,6 +51,10 @@ export interface FastifyAuth0VerifyOptions {
      */
     signed?: boolean
   }
+  /**
+   * You may customize the request.user object setting a custom sync function as parameter:
+   */
+  readonly formatUser?: (payload: SignPayloadType) => UserType
 }
 
 export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 'audience' | 'secret'> {

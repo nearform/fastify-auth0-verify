@@ -29,6 +29,12 @@ fastify.register(fastifyAuth0Verify, {
     signed: true
   }
 })
+fastify.register(fastifyAuth0Verify, {
+  domain: '<auth0 auth domain>',
+  issuer: '<auth0 issuer>',
+  audience: '<auth0 app audience>',
+  formatUser: () => ({ foo: 'bar' }),
+})
 
 fastify.register(function (instance, _options, done) {
   instance.get('/verify', {
