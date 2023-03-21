@@ -943,7 +943,6 @@ describe('General error handling', function () {
       code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       statusCode: 401,
       error: 'Unauthorized',
-      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       message: 'Authorization token is invalid: The token is malformed.'
     })
   })
