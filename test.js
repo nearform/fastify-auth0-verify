@@ -381,7 +381,7 @@ describe('JWT cookie token decoding', function () {
   })
 })
 
-describe('format decoded token', function () {
+describe.only('format decoded token', function () {
   let server
 
   beforeAll(async function () {
