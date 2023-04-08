@@ -19,9 +19,10 @@ export interface FastifyAuth0VerifyOptions {
   /**
    * The Auth0 issuer (iss), usually the API name.
    * By default the domain will be also used as audience.
-   * Accepts a string value, or an array of strings for multiple issuers.
+   * Accepts a string value, or an array of strings or regexes for multiple
+   * issuers.
    */
-  readonly issuer?: string | string[]
+  readonly issuer?: string | RegExp | (RegExp | string)[]
   /**
    * The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
    */
