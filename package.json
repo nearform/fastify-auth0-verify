@@ -37,12 +37,13 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "jest test --coverage --coverageReporters=html --coverageReporters=text && tsd",
-    "test:ci": "npm run lint && jest --coverage --ci --coverageReporters=json && tsd",
-    "lint": "eslint index.js test.js",
+    "test": "jest ./test.js --coverage",
+    "test:ci": "npm run lint && npm run test -- --ci --coverageReporters=json && npm run test:integration && npm run test:types",
+    "test:integration": "jest ./integration.test.js",
+    "test:types": "tsd",
+    "lint": "eslint index.js test.js integration.test.js",
     "prepublishOnly": "npm run test:ci",
-    "postpublish": "git push origin && git push origin -f --tags",
-    "tsd": "tsd"
+    "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
     "@fastify/cookie": "^8.0.0",
