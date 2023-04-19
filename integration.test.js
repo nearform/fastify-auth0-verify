@@ -1,7 +1,6 @@
 /* global describe, beforeAll, afterAll, it, expect */
 require('dotenv').config()
 const Fastify = require('fastify')
-const fetch = require('cross-fetch')
 
 if (
   !process.env.AUTH0_DOMAIN ||
@@ -90,7 +89,7 @@ describe('Authentication against Auth0', () => {
   })
 
   it('Returns protected route when expected auth header is provided', async () => {
-    const authResponse = await fetch(`//${process.env.AUTH0_DOMAIN}/oauth/token`, {
+    const authResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
