@@ -46,17 +46,11 @@ describe('Authentication against Auth0', () => {
   afterAll(() => server.close())
 
   it('Protects protected routes', async () => {
-    const publicResponse = await server.inject({
-      method: 'GET',
-      url: '/public'
-    })
+    const publicResponse = await server.inject('/public')
     expect(publicResponse.statusCode).toEqual(200)
     expect(publicResponse.json()).toEqual({ route: 'Public route' })
 
-    const protectedResponseWithoutAuthHeader = await server.inject({
-      method: 'GET',
-      url: '/protected'
-    })
+    const protectedResponseWithoutAuthHeader = await server.inject('/protected')
     expect(protectedResponseWithoutAuthHeader.statusCode).toEqual(401)
     expect(protectedResponseWithoutAuthHeader.json()).toEqual({
       error: 'Unauthorized',
