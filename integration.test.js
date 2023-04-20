@@ -13,35 +13,30 @@ if (
 }
 
 async function buildServer() {
-  const fastify = Fastify()
+  const server = Fastify()
 
   // Setup fastify-auth0-verify
-  async function authenticate(fastify) {
-    fastify.register(require('./index.js'), {
-      domain: process.env.AUTH0_DOMAIN,
-      secret: process.env.AUTH0_CLIENT_SECRET
-    })
-  }
-
-  authenticate[Symbol.for('skip-override')] = true
-  fastify.register(authenticate)
+  server.register(require('.'), {
+    domain: process.env.AUTH0_DOMAIN,
+    secret: process.env.AUTH0_CLIENT_SECRET
+  })
 
   // Setup auth0 protected route
-  fastify.register(async function protectedRoute(fastify) {
-    fastify.get('/protected', { preValidation: [fastify.authenticate] }, async (req, reply) => {
+  server.register(async function protectedRoute(fastify) {
+    server.get('/protected', { preValidation: [server.authenticate] }, async (req, reply) => {
       reply.send({ route: 'Protected route' })
     })
   })
 
   // Setup auth0 public route
-  fastify.register(async function publicRoute(fastify) {
-    fastify.get('/public', async (req, reply) => {
+  server.register(async function publicRoute(fastify) {
+    server.get('/public', async (req, reply) => {
       reply.send({ route: 'Public route' })
     })
   })
 
-  await fastify.listen({ port: 0 })
-  return fastify
+  await server.listen({ port: 0 })
+  return server
 }
 
 describe('Authentication against Auth0', () => {
