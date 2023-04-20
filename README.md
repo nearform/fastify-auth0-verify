@@ -38,22 +38,16 @@ This decorator can be used as `preValidation` hook to add authenticate to your r
 Example:
 
 ```js
-const server = require('fastify')()
+const fastify = require('fastify')
+const server = fastify()
 
-server.register(require('fastify-auth0-verify'), {
+await server.register(require('fastify-auth0-verify'), {
   domain: '<auth0 auth domain>',
   audience: '<auth0 app audience>'
 })
 
-server.register(function (instance, _options, done) {
-  instance.get('/verify', {
-    handler: function (request, reply) {
-      reply.send(request.user)
-    },
-    preValidation: instance.authenticate
-  })
-
-  done()
+server.get('/verify', { preValidation: server.authenticate }, (request, reply) => {
+  reply.send(request.user)
 })
 
 server.listen(0, err => {
@@ -66,34 +60,16 @@ server.listen(0, err => {
 You can configure there to be more than one Auth0 API audiences:
 
 ```js
-const server = require('fastify')()
-
-server.register(require('fastify-auth0-verify'), {
+await server.register(require('fastify-auth0-verify'), {
   domain: '<auth0 auth domain>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
-})
-
-server.register(function (instance, _options, done) {
-  instance.get('/verify', {
-    handler: function (request, reply) {
-      reply.send(request.user)
-    },
-    preValidation: instance.authenticate
-  })
-  done()
-})
-
-server.listen(APP_PORT, err => {
-  if (err) {
-    throw err
-  }
 })
 ```
 
 You can include [@fastify/jwt verify](https://github.com/fastify/fastify-jwt#verify) options:
 
 ```js
-server.register(require('fastify-auth0-verify'), {
+await server.register(require('fastify-auth0-verify'), {
   domain: '<auth0 auth domain>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>'],
   cache: true, // @fastify/jwt cache
