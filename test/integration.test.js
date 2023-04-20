@@ -15,16 +15,14 @@ async function buildServer() {
   const server = Fastify()
 
   // Setup fastify-auth0-verify
-  server.register(require('../'), {
+  await server.register(require('../'), {
     domain: process.env.AUTH0_DOMAIN,
     secret: process.env.AUTH0_CLIENT_SECRET
   })
 
   // Setup auth0 protected route
-  server.register(async function () {
-    server.get('/protected', { preValidation: server.authenticate }, (req, reply) => {
-      reply.send({ route: 'Protected route' })
-    })
+  server.get('/protected', { preValidation: server.authenticate }, (req, reply) => {
+    reply.send({ route: 'Protected route' })
   })
 
   // Setup auth0 public route
