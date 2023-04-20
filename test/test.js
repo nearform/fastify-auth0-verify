@@ -1,5 +1,3 @@
-/* global describe, beforeEach, afterEach, beforeAll, afterAll, it, expect, jest */
-
 'use strict'
 
 const { readFileSync } = require('fs')
@@ -188,7 +186,7 @@ const tokens = {
 async function buildServer(options) {
   const server = fastify()
 
-  server.register(require('.'), options)
+  server.register(require('../'), options)
   server.register(require('@fastify/cookie'))
   server.register(function (instance, options, done) {
     instance.get('/verify', {

@@ -1,4 +1,3 @@
-/* global describe, beforeAll, afterAll, it, expect */
 require('dotenv').config()
 const Fastify = require('fastify')
 const fetch = require('cross-fetch')
@@ -16,23 +15,21 @@ async function buildServer() {
   const server = Fastify()
 
   // Setup fastify-auth0-verify
-  server.register(require('.'), {
+  server.register(require('../'), {
     domain: process.env.AUTH0_DOMAIN,
     secret: process.env.AUTH0_CLIENT_SECRET
   })
 
   // Setup auth0 protected route
-  server.register(async function protectedRoute(fastify) {
-    server.get('/protected', { preValidation: [server.authenticate] }, async (req, reply) => {
+  server.register(async function () {
+    server.get('/protected', { preValidation: server.authenticate }, (req, reply) => {
       reply.send({ route: 'Protected route' })
     })
   })
 
   // Setup auth0 public route
-  server.register(async function publicRoute(fastify) {
-    server.get('/public', async (req, reply) => {
-      reply.send({ route: 'Public route' })
-    })
+  server.get('/public', (req, reply) => {
+    reply.send({ route: 'Public route' })
   })
 
   await server.listen({ port: 0 })
