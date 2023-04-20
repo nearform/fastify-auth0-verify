@@ -1,6 +1,7 @@
 /* global describe, beforeAll, afterAll, it, expect */
 require('dotenv').config()
 const Fastify = require('fastify')
+const fetch = require('cross-fetch')
 
 if (
   !process.env.AUTH0_DOMAIN ||

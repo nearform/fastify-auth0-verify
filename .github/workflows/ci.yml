@@ -7,6 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
     strategy:
       matrix:
         node: [14, 16, 18]
@@ -17,22 +22,9 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run test:ci
-  integration-tests:
-    runs-on: ubuntu-latest
-    env:
-      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-      AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version-file: .nvmrc
-      - run: npm install
       - run: npm run test:integration
   automerge:
-    needs: [build, integration-tests]
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
