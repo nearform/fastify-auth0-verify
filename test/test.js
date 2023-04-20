@@ -1,5 +1,3 @@
-/* global describe, beforeEach, afterEach, beforeAll, afterAll, it, expect, jest */
-
 'use strict'
 
 const { readFileSync } = require('fs')
@@ -187,27 +185,18 @@ const tokens = {
 
 async function buildServer(options) {
   const server = fastify()
+  await server.register(require('../'), options)
+  await server.register(require('@fastify/cookie'))
 
-  server.register(require('.'), options)
-  server.register(require('@fastify/cookie'))
-  server.register(function (instance, options, done) {
-    instance.get('/verify', {
-      async handler(request) {
-        return request.user
-      },
-      preValidation: instance.authenticate
-    })
+  server.get('/verify', { preValidation: server.authenticate }, req => {
+    return req.user
+  })
 
-    instance.get('/decode', {
-      async handler(request) {
-        return {
-          regular: await request.jwtDecode(),
-          full: await request.jwtDecode({ decode: { complete: true } })
-        }
-      }
-    })
-
-    done()
+  server.get('/decode', async req => {
+    return {
+      regular: await req.jwtDecode(),
+      full: await req.jwtDecode({ decode: { complete: true } })
+    }
   })
 
   await server.listen({ port: 0 })

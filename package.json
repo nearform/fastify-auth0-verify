@@ -37,12 +37,13 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "jest test --coverage --coverageReporters=html --coverageReporters=text && tsd",
-    "test:ci": "npm run lint && jest --coverage --ci --coverageReporters=json && tsd",
-    "lint": "eslint index.js test.js",
+    "test": "jest ./test/test.js --coverage",
+    "test:ci": "npm run lint && npm run test -- --ci --coverageReporters=json && npm run test:types",
+    "test:integration": "jest ./test/integration.test.js",
+    "test:types": "tsd",
+    "lint": "eslint index.js test",
     "prepublishOnly": "npm run test:ci",
-    "postpublish": "git push origin && git push origin -f --tags",
-    "tsd": "tsd"
+    "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
     "@fastify/cookie": "^8.0.0",
@@ -53,10 +54,13 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "cross-fetch": "^3.1.5",
+    "dotenv": "^16.0.3",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.2.1",
     "eslint-plugin-n": "^15.2.5",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.1",
