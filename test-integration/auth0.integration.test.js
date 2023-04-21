@@ -13,11 +13,11 @@ if (
 
 async function buildServer() {
   const server = Fastify()
+
   // Setup fastify-auth0-verify
   await server.register(require('../'), {
     domain: process.env.AUTH0_DOMAIN + '/.well-known/jwks.json',
-    secret: process.env.AUTH0_CLIENT_SECRET,
-    issuer: new URL('https://' + process.env.AUTH0_DOMAIN).toString()
+    secret: process.env.AUTH0_CLIENT_SECRET
   })
 
   // Setup auth0 protected route

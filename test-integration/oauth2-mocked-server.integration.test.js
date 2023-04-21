@@ -19,7 +19,6 @@ async function buildServer({ oAuthServerUrl }) {
   // Setup fastify-auth0-verify
   await server.register(require('../'), {
     domain: `${oAuthServerUrl}/jwks`,
-    audience: 'fastify-auth0-verify-test-api',
     issuer: oAuthServerUrl
   })
 
@@ -37,7 +36,7 @@ async function buildServer({ oAuthServerUrl }) {
   return server
 }
 
-describe('Authentication against Auth0', () => {
+describe('Authentication against oauth2 mocked server', () => {
   let server
   let OAuthServer
 
@@ -87,9 +86,6 @@ describe('Authentication against Auth0', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        client_id: 'client_id',
-        client_secret: 'client_secret',
-        audience: 'audience',
         grant_type: 'client_credentials'
       })
     })
