@@ -41,28 +41,36 @@ function verifyOptions(options) {
   // Prepare verification options
   const verify = Object.assign({}, options, { algorithms: [] })
 
+  let domainURLObject
+  // @NOTE This is going to be renamed domain once we rename current domain :)
+  let domainOrigin
+
   if (domain) {
     domain = domain.toString()
 
     // Normalize the domain in order to get a complete URL for JWKS fetching
     if (!domain.match(/^http(?:s?)/)) {
-      domain = new URL(`https://${domain}`).toString()
+      domainURLObject = new URL(`https://${domain}`)
+      domain = domainURLObject.toString()
     } else {
       // adds missing trailing slash if it's not been provided in the config
-      domain = new URL(domain).toString()
+      domainURLObject = new URL(domain)
+      domain = domainURLObject.toString()
     }
+
+    domainOrigin = domainURLObject.origin + '/'
 
     verify.algorithms.push('RS256')
     // @TODO normalize issuer url like done for domain
-    verify.allowedIss = issuer || domain
+    verify.allowedIss = issuer || domainOrigin
 
     if (audience) {
-      verify.allowedAud = domain
+      verify.allowedAud = domainOrigin
     }
   }
 
   if (audience) {
-    verify.allowedAud = audience === true ? domain : audience
+    verify.allowedAud = audience === true ? domainOrigin : audience
   }
 
   if (secret) {
