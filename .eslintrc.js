@@ -3,7 +3,7 @@ module.exports = {
   overrides: [
     {
       extends: ['standard', 'plugin:prettier/recommended'],
-      files: ['test/**'],
+      files: ['test/**', 'test-integration/**'],
       plugins: ['jest'],
       env: {
         'jest/globals': true
