@@ -53,6 +53,7 @@ function verifyOptions(options) {
     }
 
     verify.algorithms.push('RS256')
+    // @TODO normalize issuer url like done for domain
     verify.allowedIss = issuer || domain
 
     if (audience) {
