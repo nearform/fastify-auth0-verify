@@ -5,6 +5,7 @@ const fastifyPlugin = require('fastify-plugin')
 const fastifyJwt = require('@fastify/jwt')
 const fetch = require('node-fetch')
 const NodeCache = require('node-cache')
+const { createPublicKey } = require('node:crypto')
 
 const forbiddenOptions = ['algorithms']
 
@@ -91,7 +92,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     }
 
     // Hit the well-known URL in order to get the key
-    const response = await fetch(`${domain}.well-known/jwks.json`, { timeout: 5000 })
+    const response = await fetch(domain, { timeout: 5000 })
 
     const body = await response.json()
 
@@ -112,8 +113,14 @@ async function getRemoteSecret(domain, alg, kid, cache) {
       throw new Unauthorized(errorMessages.missingKey)
     }
 
-    // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
-    const secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
+    let secret
+    if (key.x5c) {
+      // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
+      secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
+    } else {
+      const publicKey = await createPublicKey({ key, format: 'jwk' })
+      secret = publicKey.export({ type: 'spki', format: 'pem' })
+    }
 
     // Save the key in the cache
     cache.set(cacheKey, secret)
