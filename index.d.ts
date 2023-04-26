@@ -5,11 +5,11 @@ import NodeCache from 'node-cache'
 
 export interface FastifyAuth0VerifyOptions {
   /**
-   * The Auth0 tenant domain. It enables verification of RS256 encoded tokens.
-   * It is also used to verify the token issuer (iss).
-   * Either provide a domain or the full URL, including the trailing slash (https://domain.com/).
+   * JSON Web Key Set url (JWKS).
+   * The public endpoint returning the set of keys that contain amongst other things the keys needed to verify JSON Web Tokens (JWT)
+   * Eg. https://domain.com/.well-known/jwks.json
    */
-  readonly domain?: string
+  readonly jwksUrl?: string
   /**
    * The Auth0 audience (aud), usually the API name.
    * If you provide the value true, the domain will be also used as audience.
@@ -58,7 +58,7 @@ export interface FastifyAuth0VerifyOptions {
   readonly formatUser?: (payload: SignPayloadType) => UserType
 }
 
-export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'domain' | 'audience' | 'secret'> {
+export interface Auth0Verify extends Pick<FastifyAuth0VerifyOptions, 'jwksUrl' | 'audience' | 'secret'> {
   readonly verify: FastifyAuth0VerifyOptions & {
     readonly algorithms: readonly string[]
     readonly audience?: string | readonly string[]

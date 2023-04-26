@@ -7,22 +7,22 @@ import fastifyJWT from '@fastify/jwt'
 const fastify = Fastify()
 
 fastify.register(fastifyAuth0Verify, {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   issuer: '<auth0 issuer>',
   audience: '<auth0 app audience>'
 })
 fastify.register(fastifyAuth0Verify, {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   issuer: /<auth0 issuer>/,
   audience: '<auth0 app audience>'
 })
 fastify.register(fastifyAuth0Verify, {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   issuer: ['<auth0 issuer>', /<auth0 issuer>/],
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
 fastify.register(fastifyAuth0Verify, {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
 fastify.register(fastifyJWT, {
@@ -35,26 +35,26 @@ fastify.register(fastifyAuth0Verify, {
   }
 })
 fastify.register(fastifyAuth0Verify, {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   issuer: '<auth0 issuer>',
   audience: '<auth0 app audience>',
-  formatUser: () => ({ foo: 'bar' }),
+  formatUser: () => ({ foo: 'bar' })
 })
 
 fastify.register(function (instance, _options, done) {
   instance.get('/verify', {
     handler: function (request, reply) {
-      expectAssignable<Function>(request.jwtDecode);
+      expectAssignable<Function>(request.jwtDecode)
 
       const options: FastifyJwtDecodeOptions = {
-        decode:{
+        decode: {
           complete: true
         },
-        verify:{}
+        verify: {}
       }
 
       expectType<Promise<DecodePayloadType>>(request.jwtDecode(options))
-      expectType<Promise<DecodePayloadType>>(request.jwtDecode({decode:{ complete: true }, verify:{}}))
+      expectType<Promise<DecodePayloadType>>(request.jwtDecode({ decode: { complete: true }, verify: {} }))
       expectType<Promise<DecodePayloadType>>(request.jwtDecode())
 
       reply.send(request.user)

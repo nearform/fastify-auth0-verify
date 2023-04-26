@@ -17,7 +17,7 @@ npm install fastify-auth0-verify --save
 
 Register as a plugin, providing one or more of the following options:
 
-- `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain or the full URL, including the trailing slash (`https://domain.com/`).
+- `jwksUrl`: JSON Web Key Set url (JWKS). The public endpoint returning the set of keys that contain amongst other things the keys needed to verify JSON Web Tokens (JWT). Eg. https://domain.com/.well-known/jwks.json
 - `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers.
 - `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers.
 - `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
@@ -42,7 +42,7 @@ const fastify = require('fastify')
 const server = fastify()
 
 await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   audience: '<auth0 app audience>'
 })
 
@@ -61,7 +61,7 @@ You can configure there to be more than one Auth0 API audiences:
 
 ```js
 await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
 ```
@@ -70,7 +70,7 @@ You can include [@fastify/jwt verify](https://github.com/fastify/fastify-jwt#ver
 
 ```js
 await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
+  jwksUrl: '<JWKS url>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>'],
   cache: true, // @fastify/jwt cache
   cacheTTL: 100, // @fastify/jwt cache ttl

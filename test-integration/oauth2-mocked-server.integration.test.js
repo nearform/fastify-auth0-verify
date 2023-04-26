@@ -18,7 +18,7 @@ async function buildServer({ oAuthServerUrl }) {
 
   // Setup fastify-auth0-verify
   await server.register(require('../'), {
-    domain: `${oAuthServerUrl}/jwks`,
+    jwksUrl: `${oAuthServerUrl}/jwks`,
     issuer: oAuthServerUrl
   })
 

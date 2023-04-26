@@ -17,7 +17,7 @@ const errorMessages = {
   jwksHttpError: 'Unable to get the JWS due to a HTTP error',
   missingHeader: 'Missing Authorization HTTP header.',
   missingKey: 'Missing Key: Public key must be provided',
-  missingOptions: 'Please provide at least one of the "domain" or "secret" options.'
+  missingOptions: 'Please provide at least one of the "jwksUrl" or "secret" options.'
 }
 
 const fastifyJwtErrors = [
@@ -29,7 +29,7 @@ const fastifyJwtErrors = [
 ]
 
 function verifyOptions(options) {
-  let { domain, audience, secret, issuer } = options
+  let { jwksUrl, audience, secret, issuer } = options
 
   // Do not allow some options to be overidden by original user provided
   for (const key of forbiddenOptions) {
@@ -41,55 +41,53 @@ function verifyOptions(options) {
   // Prepare verification options
   const verify = Object.assign({}, options, { algorithms: [] })
 
-  let domainURLObject
-  // @NOTE This is going to be renamed domain once we rename current domain :)
-  let domainOrigin
+  let jwksUrlObject
+  let jwksUrlOrigin
 
-  if (domain) {
-    domain = domain.toString()
+  if (jwksUrl) {
+    jwksUrl = jwksUrl.toString()
 
-    // Normalize the domain in order to get a complete URL for JWKS fetching
-    if (!domain.match(/^http(?:s?)/)) {
-      domainURLObject = new URL(`https://${domain}`)
-      domain = domainURLObject.toString()
+    // Normalize to get a complete URL for JWKS fetching
+    if (!jwksUrl.match(/^http(?:s?)/)) {
+      jwksUrlObject = new URL(`https://${jwksUrl}`)
+      jwksUrl = jwksUrlObject.toString()
     } else {
       // adds missing trailing slash if it's not been provided in the config
-      domainURLObject = new URL(domain)
-      domain = domainURLObject.toString()
+      jwksUrlObject = new URL(jwksUrl)
+      jwksUrl = jwksUrlObject.toString()
     }
 
-    domainOrigin = domainURLObject.origin + '/'
+    jwksUrlOrigin = jwksUrlObject.origin + '/'
 
     verify.algorithms.push('RS256')
-    // @TODO normalize issuer url like done for domain
-    verify.allowedIss = issuer || domainOrigin
+    // @TODO normalize issuer url like done for jwksUrl
+    verify.allowedIss = issuer || jwksUrlOrigin
 
     if (audience) {
-      verify.allowedAud = domainOrigin
+      verify.allowedAud = jwksUrlOrigin
     }
   }
 
   if (audience) {
-    verify.allowedAud = audience === true ? domainOrigin : audience
+    verify.allowedAud = audience === true ? jwksUrlOrigin : audience
   }
 
   if (secret) {
     secret = secret.toString()
-
     verify.algorithms.push('HS256')
   }
 
-  if (!domain && !secret) {
-    // If there is no domain and no secret no verifications are possible, throw an error
+  if (!jwksUrl && !secret) {
+    // If there is no jwksUrl and no secret no verifications are possible, throw an error
     throw new Error(errorMessages.missingOptions)
   }
 
-  return { domain, audience, secret, verify }
+  return { jwksUrl, audience, secret, verify }
 }
 
-async function getRemoteSecret(domain, alg, kid, cache) {
+async function getRemoteSecret(jwksUrl, alg, kid, cache) {
   try {
-    const cacheKey = `${alg}:${kid}:${domain}`
+    const cacheKey = `${alg}:${kid}:${jwksUrl}`
 
     const cached = cache.get(cacheKey)
 
@@ -101,7 +99,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
     }
 
     // Hit the well-known URL in order to get the key
-    const response = await fetch(domain, { timeout: 5000 })
+    const response = await fetch(jwksUrl, { timeout: 5000 })
 
     const body = await response.json()
 
@@ -124,6 +122,7 @@ async function getRemoteSecret(domain, alg, kid, cache) {
 
     let secret
     if (key.x5c) {
+      // @TODO This comes from a previous implementation: check whether this condition is still necessary
       // certToPEM extracted from https://github.com/auth0/node-jwks-rsa/blob/master/src/utils.js
       secret = `-----BEGIN CERTIFICATE-----\n${key.x5c[0]}\n-----END CERTIFICATE-----\n`
     } else {
@@ -156,7 +155,7 @@ function getSecret(request, reply, cb) {
       }
 
       // If the algorithm is RS256, get the key remotely using a well-known URL containing a JWK set
-      getRemoteSecret(request.auth0Verify.domain, header.alg, header.kid, request.auth0VerifySecretsCache)
+      getRemoteSecret(request.auth0Verify.jwksUrl, header.alg, header.kid, request.auth0VerifySecretsCache)
         .then(key => cb(null, key))
         .catch(cb)
     })
