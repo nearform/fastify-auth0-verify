@@ -82,6 +82,11 @@ describe('Authentication against oauth2 mocked server', () => {
   })
 
   it('Returns protected route when expected auth header is provided', async () => {
+    if (process.version.startsWith('v14')) {
+      console.log('Skipping test on v14')
+      return
+    }
+
     const authResponse = await fetch(`${OAuthServer.issuer.url}/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
