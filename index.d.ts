@@ -11,20 +11,20 @@ export interface FastifyAuth0VerifyOptions {
    */
   readonly jwksUrl?: string
   /**
-   * The Auth0 audience (aud), usually the API name.
-   * If you provide the value true, the domain will be also used as audience.
-   * Accepts a string value, or an array of strings for multiple providers.
+   * The intended consumer of the token.
+   * This is typically a set of endpoints at which the token can be used.
+   * If you provide the value `true`, the domain will be also used as audience.
+   * Accepts a string value, or an array of strings for multiple audiences.
    */
   readonly audience?: string | readonly string[] | boolean
   /**
-   * The Auth0 issuer (iss), usually the API name.
+   * The domain of the system which is issuing OAuth access tokens.
    * By default the domain will be also used as audience.
-   * Accepts a string value, or an array of strings or regexes for multiple
-   * issuers.
+   * Accepts a string value, or an array of strings for multiple issuers.
    */
   readonly issuer?: string | RegExp | (RegExp | string)[]
   /**
-   * The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
+   * The OAuth client secret. It enables verification of HS256 encoded JWT tokens.
    */
   readonly secret?: string
   /**

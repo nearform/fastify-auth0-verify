@@ -18,9 +18,9 @@ npm install fastify-auth0-verify --save
 Register as a plugin, providing one or more of the following options:
 
 - `jwksUrl`: JSON Web Key Set url (JWKS). The public endpoint returning the set of keys that contain amongst other things the keys needed to verify JSON Web Tokens (JWT). Eg. https://domain.com/.well-known/jwks.json
-- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers.
-- `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers.
-- `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
+- `audience`: The intended consumer of the token. This is typically a set of endpoints at which the token can be used. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple audiences.
+- `issuer`: The domain of the system which is issuing OAuth access tokens. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers.
+- `secret`: The OAuth client secret. It enables verification of HS256 encoded JWT tokens.
 - `complete`: If to return also the header and signature of the verified token.
 - `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
 - `cookie`: Used to indicate that the token can be passed using cookie, instead of the Authorization header.
@@ -43,7 +43,7 @@ const server = fastify()
 
 await server.register(require('fastify-auth0-verify'), {
   jwksUrl: '<JWKS url>',
-  audience: '<auth0 app audience>'
+  audience: '<app audience>'
 })
 
 server.get('/verify', { preValidation: server.authenticate }, (request, reply) => {
@@ -62,7 +62,7 @@ You can configure there to be more than one Auth0 API audiences:
 ```js
 await server.register(require('fastify-auth0-verify'), {
   jwksUrl: '<JWKS url>',
-  audience: ['<auth0 app audience>', '<auth0 admin audience>']
+  audience: ['<app audience>', '<admin audience>']
 })
 ```
 
@@ -71,7 +71,7 @@ You can include [@fastify/jwt verify](https://github.com/fastify/fastify-jwt#ver
 ```js
 await server.register(require('fastify-auth0-verify'), {
   jwksUrl: '<JWKS url>',
-  audience: ['<auth0 app audience>', '<auth0 admin audience>'],
+  audience: ['<app audience>', '<admin audience>'],
   cache: true, // @fastify/jwt cache
   cacheTTL: 100, // @fastify/jwt cache ttl
   errorCacheTTL: -1 // @fastify/jwt error cache ttl
