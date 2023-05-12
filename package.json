@@ -48,6 +48,7 @@
   "dependencies": {
     "@fastify/cookie": "^8.0.0",
     "@fastify/jwt": "^6.1.0",
+    "fastify-jwt-jwks": "github:nearform/fastify-jwt-jwks",
     "fastify-plugin": "^4.0.0",
     "node-cache": "^5.0.1"
   },
