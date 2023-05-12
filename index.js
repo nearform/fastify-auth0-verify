@@ -5,9 +5,9 @@ const fastifyJwtJwks = require('fastify-jwt-jwks').fastifyJwtJwks
 
 function fastifyAuth0Verify(instance, options, done) {
   if (options.domain) {
-    const domain = options.domain;
-    delete options['domain']
-    options['jwksUrl'] = `${domain}.well-known/jwks.json`
+    const domain = options.domain
+    delete options.domain
+    options.jwksUrl = `${domain}.well-known/jwks.json`
   }
   return fastifyJwtJwks(instance, options, done)
 }
