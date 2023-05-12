@@ -49,9 +49,7 @@
     "@fastify/cookie": "^8.0.0",
     "@fastify/jwt": "^6.1.0",
     "fastify-plugin": "^4.0.0",
-    "http-errors": "^2.0.0",
-    "node-cache": "^5.0.1",
-    "node-fetch": "^2.6.1"
+    "node-cache": "^5.0.1"
   },
   "devDependencies": {
     "cross-fetch": "^3.1.5",
