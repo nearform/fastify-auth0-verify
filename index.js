@@ -25,6 +25,8 @@ function fastifyAuth0Verify(instance, options, done) {
 
       options.jwksUrl = `${domain}.well-known/jwks.json`
     } else if (!secret) {
+      // Throw missing options error here to prevent confusing error 
+      // message from fastify-jwt-jwks being thrown to user
       throw new Error(errorMessages.missingOptions)
     }
 
