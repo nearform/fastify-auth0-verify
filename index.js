@@ -8,21 +8,30 @@ const errorMessages = {
 }
 
 function fastifyAuth0Verify(instance, options, done) {
-  const { domain, secret } = options
+  try {
+    let { domain, secret } = options
 
-  if (!domain && !secret) {
-    // Domain or secret are required for verification
-    // Checking for secret here prevents a misleading error message if neither
-    // jwksUrl or secret are passed to fastify-jwt-jwks
-    throw new Error(errorMessages.missingOptions)
+    if (domain) {
+      delete options.domain
+
+      domain = domain.toString()
+
+      if (!domain.match(/^http(?:s?)/)) {
+        domain = new URL(`https://${domain}`).toString()
+      } else {
+        // Add missing trailing slash if it hasn't been provided in the config
+        domain = new URL(domain).toString()
+      }
+
+      options.jwksUrl = `${domain}.well-known/jwks.json`
+    } else if (!secret) {
+      throw new Error(errorMessages.missingOptions)
+    }
+
+    return fastifyJwtJwks(instance, options, done)
+  } catch (e) {
+    done(e)
   }
-
-  if (domain) {
-    delete options.domain
-    options.jwksUrl = `${domain}.well-known/jwks.json`
-  }
-
-  return fastifyJwtJwks(instance, options, done)
 }
 
 module.exports = fastifyPlugin(fastifyAuth0Verify, { name: 'fastify-auth0-verify', fastify: '4.x' })
