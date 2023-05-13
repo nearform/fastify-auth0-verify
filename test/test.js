@@ -234,7 +234,7 @@ describe('Options parsing', function() {
   })
 
   it('should complain if forbidden options are present', async function() {
-    await expect(buildServer({ algorithms: 'whatever' })).rejects.toThrow('Option "algorithms" is not supported.')
+    await expect(buildServer({ secret: 'secret', algorithms: 'whatever' })).rejects.toThrow('Option "algorithms" is not supported.')
   })
 })
 
