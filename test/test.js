@@ -208,7 +208,7 @@ describe('Options parsing', function() {
   it('should enable RS256 when the domain is present', async function() {
     const server = await buildServer({ domain: 'localhost' })
 
-    expect(server.auth0Verify.verify.algorithms).toEqual(['RS256'])
+    expect(server.jwtJwks.verify.algorithms).toEqual(['RS256'])
 
     server.close()
   })
@@ -216,7 +216,7 @@ describe('Options parsing', function() {
   it('should enable HS256 when the secret is present', async function() {
     const server = await buildServer({ secret: 'secret' })
 
-    expect(server.auth0Verify.verify.algorithms).toEqual(['HS256'])
+    expect(server.jwtJwks.verify.algorithms).toEqual(['HS256'])
 
     server.close()
   })
@@ -224,7 +224,7 @@ describe('Options parsing', function() {
   it('should enable both algorithms is both options are present', async function() {
     const server = await buildServer({ domain: 'http://localhost', secret: 'secret' })
 
-    expect(server.auth0Verify.verify.algorithms).toEqual(['RS256', 'HS256'])
+    expect(server.jwtJwks.verify.algorithms).toEqual(['RS256', 'HS256'])
 
     server.close()
   })
