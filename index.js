@@ -32,7 +32,14 @@ function fastifyAuth0Verify(instance, options, done) {
 
     const plugin = fastifyJwtJwks(instance, options, done)
 
-    instance.decorate('auth0Verify', instance.jwtJwks)
+    if (!instance.jwtJwks) {
+      throw new Error('Big scary error')
+    }
+
+    instance.addHook('onReady', function(done) {
+      instance.decorate('auth0Verify', instance.jwtJwks)
+      done()
+    })
 
     return plugin
   } catch (e) {
