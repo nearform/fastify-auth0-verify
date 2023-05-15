@@ -1,8 +1,8 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+  extends: ['standard', 'plugin:prettier/recommended'],
   overrides: [
     {
-      extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+      extends: ['standard', 'plugin:prettier/recommended'],
       files: ['test/**'],
       plugins: ['jest'],
       env: {
