@@ -3,7 +3,9 @@
 [![Package Version](https://img.shields.io/npm/v/fastify-auth0-verify.svg)](https://npm.im/fastify-auth0-verify)
 [![ci](https://github.com/nearform/fastify-auth0-verify/actions/workflows/ci.yml/badge.svg)](https://github.com/nearform/fastify-auth0-verify/actions/workflows/ci.yml)
 
-Auth0 verification plugin for Fastify, internally uses [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt).
+Auth0 verification plugin for Fastify. 
+
+Internally this is a lighweight wrapper around [fastify-jwt-jwks](https://github.com/nearform/fastify-jwt-jwks) and accepts most of the same options. The differences are highlighted in this document. Refer to the documentation in the [fastify-jwt-jwks](https://github.com/nearform/fastify-jwt-jwks) repository for general usage.  
 
 ## Installation
 
@@ -15,68 +17,9 @@ npm install fastify-auth0-verify --save
 
 ## Usage
 
-Register as a plugin, providing one or more of the following options:
+The configuration options for this plugin are similar to those in [fastify-jwt-jwks](https://github.com/nearform/fastify-jwt-jwks), except that this package accepts a `domain` option instead of `jwksUrl`:
 
 - `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain or the full URL, including the trailing slash (`https://domain.com/`).
-- `audience`: The Auth0 audience (`aud`), usually the API name. If you provide the value `true`, the domain will be also used as audience. Accepts a string value, or an array of strings for multiple providers.
-- `issuer`: The Auth0 issuer (`iss`), usually the API name. By default the domain will be also used as audience. Accepts a string value, or an array of strings for multiple issuers.
-- `secret`: The Auth0 client secret. It enables verification of HS256 encoded JWT tokens.
-- `complete`: If to return also the header and signature of the verified token.
-- `secretsTtl`: How long (in milliseconds) to cache RS256 secrets before getting them again using well known JWKS URLS. Setting to 0 or less disables the cache.
-- `cookie`: Used to indicate that the token can be passed using cookie, instead of the Authorization header.
-  - `cookieName`: The name of the cookie.
-  - `signed`: Indicates whether the cookie is signed or not. If set to `true`, the JWT will be verified using the unsigned value.
-
-Since this plugin is based on the [@fastify/jwt](https://www.npmjs.com/package/@fastify/jwt) `verify`, it is also possibile to pass the options documented [here](https://github.com/fastify/fastify-jwt#verify), see the example below.
-
-Once registered, your fastify instance and request will be decorated as describe by `@fastify/jwt`.
-
-In addition, the request will also get the `authenticate` decorator.
-
-This decorator can be used as `preValidation` hook to add authenticate to your routes. The token information will be available in `request.user`.
-
-Example:
-
-```js
-const fastify = require('fastify')
-const server = fastify()
-
-await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
-  audience: '<auth0 app audience>'
-})
-
-server.get('/verify', { preValidation: server.authenticate }, (request, reply) => {
-  reply.send(request.user)
-})
-
-server.listen(0, err => {
-  if (err) {
-    throw err
-  }
-})
-```
-
-You can configure there to be more than one Auth0 API audiences:
-
-```js
-await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
-  audience: ['<auth0 app audience>', '<auth0 admin audience>']
-})
-```
-
-You can include [@fastify/jwt verify](https://github.com/fastify/fastify-jwt#verify) options:
-
-```js
-await server.register(require('fastify-auth0-verify'), {
-  domain: '<auth0 auth domain>',
-  audience: ['<auth0 app audience>', '<auth0 admin audience>'],
-  cache: true, // @fastify/jwt cache
-  cacheTTL: 100, // @fastify/jwt cache ttl
-  errorCacheTTL: -1 // @fastify/jwt error cache ttl
-})
-```
 
 ## Contributing
 
@@ -86,7 +29,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ### Tests
 
-Tests are currently split into **unit** and **integration**. Integration tests needs the following environment variables:
+Tests are currently split into **unit** and **integration**. Integration tests need the following environment variables:
 
 | Env var               |                                                             |
 | --------------------- | ----------------------------------------------------------- |
