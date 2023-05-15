@@ -19,7 +19,7 @@ npm install fastify-auth0-verify --save
 
 The configuration options for this plugin are similar to those in [fastify-jwt-jwks](https://github.com/nearform/fastify-jwt-jwks), except that this package accepts a `domain` option instead of `jwksUrl`:
 
-- `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain or the full URL, including the trailing slash (`https://domain.com/`).
+- `domain`: The Auth0 tenant domain. It enables verification of RS256 encoded JWT tokens. It is also used to verify the token issuer (`iss`). Either provide a domain (`domain`) or the full URL, including the trailing slash (`https://domain.com/`).
 
 ## Contributing
 
