@@ -36,7 +36,7 @@ function fastifyAuth0Verify(instance, options, done) {
       throw new Error('Big scary error')
     }
 
-    instance.addHook('onReady', function(done) {
+    instance.addHook('onReady', function (done) {
       instance.decorate('auth0Verify', instance.jwtJwks)
       done()
     })
