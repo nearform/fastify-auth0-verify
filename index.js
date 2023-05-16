@@ -30,19 +30,14 @@ function fastifyAuth0Verify(instance, options, done) {
       throw new Error(errorMessages.missingOptions)
     }
 
-    try {
-      return fastifyJwtJwks(instance, options, function (e) {
-        if (e) {
-          return done(e)
-        }
+    return fastifyJwtJwks(instance, options, function (e) {
+      if (e) {
+        return done(e)
+      }
 
-        instance.decorate('auth0Verify', { ...instance.jwtJwks })
-        done()
-      })
-    } catch (e) {
-      console.log(e)
-      done(e)
-    }
+      instance.decorate('auth0Verify', { ...instance.jwtJwks })
+      done()
+    })
   } catch (e) {
     done(e)
   }
