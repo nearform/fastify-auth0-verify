@@ -31,7 +31,7 @@ function fastifyAuth0Verify(instance, options, done) {
     }
 
     try {
-      return fastifyJwtJwks(instance, options, function(e) {
+      return fastifyJwtJwks(instance, options, function (e) {
         if (e) {
           return done(e)
         }
