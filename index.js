@@ -30,18 +30,19 @@ function fastifyAuth0Verify(instance, options, done) {
       throw new Error(errorMessages.missingOptions)
     }
 
-    const plugin = fastifyJwtJwks(instance, options, done)
+    try {
+      return fastifyJwtJwks(instance, options, function(e) {
+        if (e) {
+          return done(e)
+        }
 
-    if (!instance.jwtJwks) {
-      throw new Error('Big scary error')
+        instance.decorate('auth0Verify', { ...instance.jwtJwks })
+        done()
+      })
+    } catch (e) {
+      console.log(e)
+      done(e)
     }
-
-    instance.addHook('onReady', function (done) {
-      instance.decorate('auth0Verify', instance.jwtJwks)
-      done()
-    })
-
-    return plugin
   } catch (e) {
     done(e)
   }
