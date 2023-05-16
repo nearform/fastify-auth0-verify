@@ -35,7 +35,7 @@ function fastifyAuth0Verify(instance, options, done) {
         return done(e)
       }
 
-      instance.decorate('auth0Verify', { ...instance.jwtJwks })
+      instance.decorate('auth0Verify', instance.jwtJwks)
       done()
     })
   } catch (e) {
