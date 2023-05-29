@@ -1,6 +1,6 @@
 {
   "name": "fastify-auth0-verify",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Auth0 verification plugin for Fastify",
   "author": "NearForm Ltd",
   "homepage": "https://github.com/nearform/fastify-auth0-verify",
