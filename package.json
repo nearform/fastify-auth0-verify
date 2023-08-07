@@ -46,7 +46,7 @@
     "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
-    "@fastify/cookie": "^8.0.0",
+    "@fastify/cookie": "^9.0.4",
     "@fastify/jwt": "^7.0.0",
     "fastify-jwt-jwks": "^1.1.3",
     "fastify-plugin": "^4.0.0"
