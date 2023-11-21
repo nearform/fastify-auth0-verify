@@ -14,7 +14,7 @@ jobs:
       AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
     strategy:
       matrix:
-        node: [14, 16, 18]
+        node: [16, 18, 20]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
