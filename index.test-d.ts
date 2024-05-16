@@ -2,7 +2,6 @@ import Fastify from 'fastify'
 import fastifyAuth0Verify from '.'
 import { expectAssignable, expectType } from 'tsd'
 import { DecodePayloadType, FastifyJwtDecodeOptions } from '@fastify/jwt'
-import fastifyJWT from '@fastify/jwt'
 
 const fastify = Fastify()
 
@@ -25,7 +24,8 @@ fastify.register(fastifyAuth0Verify, {
   domain: '<auth0 auth domain>',
   audience: ['<auth0 app audience>', '<auth0 admin audience>']
 })
-fastify.register(fastifyJWT, {
+fastify.register(fastifyAuth0Verify, {
+  domain: '<auth0 auth domain>',
   secret: '<jwt secret>'
 })
 fastify.register(fastifyAuth0Verify, {
