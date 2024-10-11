@@ -295,12 +295,12 @@ describe('JWT token decoding', function () {
   it('should complain if the HTTP Authorization header is in the wrong format', async function () {
     const response = await server.inject({ method: 'GET', url: '/decode', headers: { Authorization: 'FOO' } })
 
-    expect(response.statusCode).toEqual(400)
+    expect(response.statusCode).toEqual(401)
     expect(response.json()).toEqual({
-      code: 'FST_JWT_BAD_REQUEST',
-      statusCode: 400,
-      error: 'Bad Request',
-      message: 'Format is Authorization: Bearer [token]'
+      code: 'FST_JWT_NO_AUTHORIZATION_IN_HEADER',
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'No Authorization was found in request.headers'
     })
   })
 })
@@ -920,7 +920,7 @@ describe('General error handling', function () {
     expect(response.json()).toEqual({
       statusCode: 401,
       error: 'Unauthorized',
-      message: 'Authorization header should be in format: Bearer [token].'
+      message: 'Missing Authorization HTTP header.'
     })
   })
 
