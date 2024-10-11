@@ -43,7 +43,7 @@ function fastifyAuth0Verify(instance, options, done) {
   }
 }
 
-module.exports = fastifyPlugin(fastifyAuth0Verify, { name: 'fastify-auth0-verify', fastify: '4.x' })
+module.exports = fastifyPlugin(fastifyAuth0Verify, { name: 'fastify-auth0-verify', fastify: '5.x' })
 
 // Set the default export to the fastifyAuth0Verify function for ES module compatibility
 module.exports.default = fastifyAuth0Verify
