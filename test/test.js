@@ -1008,19 +1008,12 @@ describe('General error handling', function () {
 
 describe('Cleanup', function () {
   test('should close the cache when the server stops', function (t, done) {
-    const mockCache = {
-      close: t.mock.fn()
-    }
-
-    t.mock.module('node-cache', {
-      default: function NodeCache() {
-        return mockCache
-      }
-    })
+    const NodeCache = require('node-cache')
+    t.mock.method(NodeCache.prototype, 'close')
 
     buildServer({ secret: 'secret' }).then(server => {
       server.close(() => {
-        t.assert.ok(mockCache.close.mock.callCount() > 0)
+        t.assert.ok(NodeCache.prototype.close.mock.callCount() > 0)
         done()
       })
     }, done)
