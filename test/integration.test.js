@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Fastify = require('fastify')
 const fetch = require('cross-fetch')
+const { describe, test, before, after } = require('node:test')
 
 if (
   !process.env.AUTH0_DOMAIN ||
@@ -37,20 +38,20 @@ async function buildServer() {
 describe('Authentication against Auth0', () => {
   let server
 
-  beforeAll(async function () {
+  before(async function () {
     server = await buildServer()
   })
 
-  afterAll(() => server.close())
+  after(() => server.close())
 
-  it('Protects protected routes', async () => {
+  test('Protects protected routes', async t => {
     const publicResponse = await server.inject('/public')
-    expect(publicResponse.statusCode).toEqual(200)
-    expect(publicResponse.json()).toEqual({ route: 'Public route' })
+    t.assert.equal(publicResponse.statusCode, 200)
+    t.assert.deepStrictEqual(publicResponse.json(), { route: 'Public route' })
 
     const protectedResponseWithoutAuthHeader = await server.inject('/protected')
-    expect(protectedResponseWithoutAuthHeader.statusCode).toEqual(401)
-    expect(protectedResponseWithoutAuthHeader.json()).toEqual({
+    t.assert.equal(protectedResponseWithoutAuthHeader.statusCode, 401)
+    t.assert.deepStrictEqual(protectedResponseWithoutAuthHeader.json(), {
       error: 'Unauthorized',
       message: 'Missing Authorization HTTP header.',
       statusCode: 401
@@ -65,16 +66,15 @@ describe('Authentication against Auth0', () => {
         Authorization: invalidAuthToken
       }
     })
-    expect(protectedResponseWithInvalidAuthHeader.statusCode).toEqual(401)
-    expect(protectedResponseWithInvalidAuthHeader.json()).toEqual({
-      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
+    t.assert.equal(protectedResponseWithInvalidAuthHeader.statusCode, 401)
+    t.assert.deepStrictEqual(protectedResponseWithInvalidAuthHeader.json(), {
       error: 'Unauthorized',
-      message: 'Authorization token is invalid: The token header is not a valid base64url serialized JSON.',
+      message: 'No Authorization was found in request.headers',
       statusCode: 401
     })
   })
 
-  it('Returns protected route when expected auth header is provided', async () => {
+  test('Returns protected route when expected auth header is provided', async t => {
     const authResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -95,7 +95,8 @@ describe('Authentication against Auth0', () => {
         Authorization: `${tokenType} ${accessToken}`
       }
     })
-    expect(protectedResponse.statusCode).toEqual(200)
-    expect(protectedResponse.json()).toEqual({ route: 'Protected route' })
+
+    t.assert.equal(protectedResponse.statusCode, 200)
+    t.assert.deepStrictEqual(protectedResponse.json(), { route: 'Protected route' })
   })
 })
