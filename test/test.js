@@ -441,6 +441,7 @@ describe('HS256 JWT token validation', function () {
 
     t.assert.equal(response.statusCode, 200)
     t.assert.deepStrictEqual(response.json(), {
+      input: tokens.hs256Valid.split('.').slice(0, -1).join('.'),
       header: { alg: 'HS256', typ: 'JWT' },
       payload: { sub: '1234567890', name: 'John Doe', admin: true },
       signature: 'eNK_fimsCW3Q-meOXyc_dnZHubl2D4eZkIcn6llniCk'
