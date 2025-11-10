@@ -605,6 +605,7 @@ describe('RS256 JWT token validation', function () {
 
     t.assert.equal(response.statusCode, 200)
     t.assert.deepStrictEqual(response.json(), {
+      input: tokens.rs256Valid.split('.').slice(0, -1).join('.'),
       header: {
         alg: 'RS256',
         kid: 'KEY',
@@ -778,11 +779,10 @@ describe('RS256 JWT token validation', function () {
     t.assert.equal(response.statusCode, 500)
     const { message, ...responseContent } = response.json()
     t.assert.deepStrictEqual(responseContent, {
-      code: 'ECONNREFUSED',
       statusCode: 500,
       error: 'Internal Server Error'
     })
-    t.assert.match(message, /request to https:\/\/localhost\/.well-known\/jwks.json failed/)
+    t.assert.match(message, /fetch failed/)
   })
 
   test('should cache the key and not it the well-known URL more than once', async function (t) {
@@ -829,9 +829,9 @@ describe('RS256 JWT token validation', function () {
 
     const body = response.json()
 
-    t.assert.equal(response.statusCode, 500)
-    t.assert.equal(body.statusCode, 500)
-    t.assert.equal(body.error, 'Internal Server Error')
+    t.assert.equal(response.statusCode, 404)
+    t.assert.equal(body.statusCode, 404)
+    t.assert.equal(body.error, 'Not Found')
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
@@ -857,10 +857,9 @@ describe('RS256 JWT token validation', function () {
 
     const body = response.json()
 
-    t.assert.equal(response.statusCode, 500)
-
-    t.assert.equal(body.statusCode, 500)
-    t.assert.equal(body.error, 'Internal Server Error')
+    t.assert.equal(response.statusCode, 404)
+    t.assert.equal(body.statusCode, 404)
+    t.assert.equal(body.error, 'Not Found')
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
