@@ -418,7 +418,7 @@ describe('HS256 JWT token validation', function () {
 
   afterEach(() => server.close())
 
-  test('should make the token informations available through request.user', async function (t) {
+  test('should make the token information available through request.user', async function (t) {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -429,7 +429,7 @@ describe('HS256 JWT token validation', function () {
     t.assert.deepStrictEqual(response.json(), { sub: '1234567890', name: 'John Doe', admin: true })
   })
 
-  test('should make the complete token informations available through request.user', async function (t) {
+  test('should make the complete token information available through request.user', async function (t) {
     await server.close()
     server = await buildServer({ secret: 'secret', complete: true })
 
@@ -577,7 +577,7 @@ describe('RS256 JWT token validation', function () {
     nock.enableNetConnect()
   })
 
-  test('should make the token informations available through request.user', async function (t) {
+  test('should make the token information available through request.user', async function (t) {
     const response = await server.inject({
       method: 'GET',
       url: '/verify',
@@ -593,7 +593,7 @@ describe('RS256 JWT token validation', function () {
     })
   })
 
-  test('should make the complete token informations available through request.user', async function (t) {
+  test('should make the complete token information available through request.user', async function (t) {
     await server.close()
     server = await buildServer({ domain: 'localhost', complete: true })
 
