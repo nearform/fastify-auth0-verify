@@ -61,7 +61,7 @@
     "eslint-plugin-n": "^16.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.0.1",
-    "fast-jwt": "^4.0.0",
+    "fast-jwt": "^6.0.2",
     "fastify": "^5.0.0",
     "jest": "^29.0.0",
     "nock": "^13.0.2",
