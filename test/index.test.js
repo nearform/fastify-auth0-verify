@@ -1,13 +1,12 @@
 'use strict'
 
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
 const { describe, test, before, after, beforeEach, afterEach } = require('node:test')
 const { readFileSync } = require('fs')
 const path = require('path')
 const fastify = require('fastify')
 const { createSigner } = require('fast-jwt')
 const nock = require('nock')
-
-/* eslint-disable max-len */
 
 /*
 How to regenerate the keys for RS256:
@@ -182,7 +181,6 @@ const tokens = {
   invalidIssuer:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlzcyI6ImJhciJ9.jG2FWFY709fd9ooB4NgU1YpPmT4gp_Ig8JisFZAOBS0'
 }
-/* eslint-enable max-len */
 
 async function buildServer(options) {
   const server = fastify()
@@ -618,7 +616,7 @@ describe('RS256 JWT token validation', function () {
         iss: 'https://localhost/'
       },
       signature:
-        'HYgGxrwl3vthMChCy44eg-VK0x_SR-mf6761VI9jNk9rMqKZmFcabE7dVUA_hCKFXyj7VL7bJ09i3PxYFkj78PMz28B9hZz_h4ntVuafPmDL9FCHvW91oZTJRhosNor2yyUFcx6ijfu6WeUTZRtQdBqvcAgtKutNl9H0Q0wff-Jn10ViiFJTEmiaC-XhoZFjZQee7_bS7mOZtJCZeH69D_CWrCf4I-N2nl8U1sVHp-H0fRCc5D5SvlIhCsIXYJoFDRAuTtRvwrXXVPlIPugCeJ8l91S-GbIEEUejDCE8JPW9bEGfKoAFBiIbnRBSb4hKEbdFUqWHk-5_YOLzvPnq57vlCB8yeC10exEgiSeSb74tXGZyB4z540Mjt-2k9O9t7Uz1ICDZHvrYLUN2wzlSKqSucOvr5YpH8y-iLaWqAQeiR2b6w0u_c9kMEgzCAaobJp4QxjGkKHfYNmUFlV1uoY5_I2CBls-ICr0_E9PicMBnddg_JG8KabqAmZObCrkM5WRxSPPNLTElmw80MACxFqgaKxsMg-6uqmgTwy9ie9TjYVVdL1pdxWWaLDhzpDN1mmdTuIazfnSaib7PnzgPPgHlN7TnSCmCnYzffAg-i2Fz8JOhiK50mF86hc8n6em6K7cbVLm0nQcA4249D88Um9KBs8AoPXov8HGAS4Khwhk' // eslint-disable-line max-len
+        'HYgGxrwl3vthMChCy44eg-VK0x_SR-mf6761VI9jNk9rMqKZmFcabE7dVUA_hCKFXyj7VL7bJ09i3PxYFkj78PMz28B9hZz_h4ntVuafPmDL9FCHvW91oZTJRhosNor2yyUFcx6ijfu6WeUTZRtQdBqvcAgtKutNl9H0Q0wff-Jn10ViiFJTEmiaC-XhoZFjZQee7_bS7mOZtJCZeH69D_CWrCf4I-N2nl8U1sVHp-H0fRCc5D5SvlIhCsIXYJoFDRAuTtRvwrXXVPlIPugCeJ8l91S-GbIEEUejDCE8JPW9bEGfKoAFBiIbnRBSb4hKEbdFUqWHk-5_YOLzvPnq57vlCB8yeC10exEgiSeSb74tXGZyB4z540Mjt-2k9O9t7Uz1ICDZHvrYLUN2wzlSKqSucOvr5YpH8y-iLaWqAQeiR2b6w0u_c9kMEgzCAaobJp4QxjGkKHfYNmUFlV1uoY5_I2CBls-ICr0_E9PicMBnddg_JG8KabqAmZObCrkM5WRxSPPNLTElmw80MACxFqgaKxsMg-6uqmgTwy9ie9TjYVVdL1pdxWWaLDhzpDN1mmdTuIazfnSaib7PnzgPPgHlN7TnSCmCnYzffAg-i2Fz8JOhiK50mF86hc8n6em6K7cbVLm0nQcA4249D88Um9KBs8AoPXov8HGAS4Khwhk'
     })
   })
 
@@ -1007,15 +1005,18 @@ describe('General error handling', function () {
 })
 
 describe('Cleanup', function () {
-  test('should close the cache when the server stops', function (t, done) {
+  test('should close the cache when the server stops', async function (t, done) {
     const NodeCache = require('node-cache')
     t.mock.method(NodeCache.prototype, 'close')
 
-    buildServer({ secret: 'secret' }).then(server => {
+    try {
+      const server = await buildServer({ secret: 'secret' })
       server.close(() => {
         t.assert.ok(NodeCache.prototype.close.mock.callCount() > 0)
         done()
       })
-    }, done)
+    } catch (err) {
+      done(err)
+    }
   })
 })
