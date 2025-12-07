@@ -186,7 +186,7 @@ const tokens = {
 
 async function buildServer(options) {
   const server = fastify()
-  await server.register(require('../index'), options)
+  await server.register(require('../'), options)
   await server.register(require('@fastify/cookie'))
 
   server.get('/verify', { preValidation: server.authenticate }, req => {
