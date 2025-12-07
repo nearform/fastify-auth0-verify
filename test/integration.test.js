@@ -68,8 +68,9 @@ describe('Authentication against Auth0', () => {
     })
     t.assert.equal(protectedResponseWithInvalidAuthHeader.statusCode, 401)
     t.assert.deepStrictEqual(protectedResponseWithInvalidAuthHeader.json(), {
+      code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
       error: 'Unauthorized',
-      message: 'No Authorization was found in request.headers',
+      message: 'Authorization token is invalid: The token header is not a valid base64url serialized JSON.',
       statusCode: 401
     })
   })
@@ -77,8 +78,8 @@ describe('Authentication against Auth0', () => {
   test('Returns protected route when expected auth header is provided', async t => {
     const authResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
         client_id: process.env.AUTH0_CLIENT_ID,
         client_secret: process.env.AUTH0_CLIENT_SECRET,
         audience: process.env.AUTH0_API_AUDIENCE,
