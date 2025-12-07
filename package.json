@@ -37,7 +37,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "node --test --experimental-test-coverage --experimental-test-module-mocks ./test/test.js",
+    "test": "node --test --experimental-test-coverage --experimental-test-module-mocks ./test/index.test.js",
     "test:ci": "npm run lint && npm run test && npm run test:types",
     "test:integration": "node --test ./test/integration.test.js",
     "test:types": "tsd",
