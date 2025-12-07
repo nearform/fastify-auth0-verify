@@ -857,7 +857,7 @@ describe('RS256 JWT token validation', function () {
 
     const body = response.json()
 
-    t.assert.ok(response.statusCode >= 400)
+    t.assert.equal(response.statusCode, 404)
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
