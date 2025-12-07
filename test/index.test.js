@@ -8,6 +8,15 @@ const fastify = require('fastify')
 const { createSigner } = require('fast-jwt')
 const nock = require('nock')
 
+function withResolvers() {
+  let res, rej
+  const promise = new Promise((resolve, reject) => {
+    res = resolve
+    rej = reject
+  })
+  return { promise, resolve: res, reject: rej }
+}
+
 /*
 How to regenerate the keys for RS256:
 
@@ -1005,18 +1014,19 @@ describe('General error handling', function () {
 })
 
 describe('Cleanup', function () {
-  test('should close the cache when the server stops', async function (t, done) {
+  test('should close the cache when the server stops', async function (t) {
     const NodeCache = require('node-cache')
     t.mock.method(NodeCache.prototype, 'close')
 
-    try {
-      const server = await buildServer({ secret: 'secret' })
-      server.close(() => {
-        t.assert.ok(NodeCache.prototype.close.mock.callCount() > 0)
-        done()
-      })
-    } catch (err) {
-      done(err)
-    }
+    const server = await buildServer({ secret: 'secret' })
+
+    const { resolve, promise } = withResolvers()
+
+    server.close(() => {
+      t.assert.ok(NodeCache.prototype.close.mock.callCount() > 0)
+      resolve()
+    })
+
+    await promise
   })
 })
