@@ -858,6 +858,8 @@ describe('RS256 JWT token validation', function () {
     const body = response.json()
 
     t.assert.equal(response.statusCode, 404)
+    t.assert.equal(body.statusCode, 404)
+    t.assert.equal(body.error, 'Not Found')
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
