@@ -54,7 +54,7 @@
   "devDependencies": {
     "cross-fetch": "^4.1.0",
     "dotenv": "^17.2.3",
-    "eslint": "^8.23.0",
+    "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.32.0",
