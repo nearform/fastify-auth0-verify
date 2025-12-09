@@ -52,8 +52,6 @@
     "fastify-plugin": "^5.1.0"
   },
   "devDependencies": {
-    "cross-fetch": "^4.1.0",
-    "dotenv": "^17.2.3",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",

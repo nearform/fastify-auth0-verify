@@ -1,8 +1,13 @@
-require('dotenv').config()
 const Fastify = require('fastify')
-const fetch = require('cross-fetch')
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
 const { describe, test, before, after } = require('node:test')
+
+try {
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
+  process.loadEnvFile()
+} catch (e) {
+  console.error('Failed to load .env file', e)
+}
 
 if (
   !process.env.AUTH0_DOMAIN ||
@@ -77,6 +82,7 @@ describe('Authentication against Auth0', () => {
   })
 
   test('Returns protected route when expected auth header is provided', async t => {
+    // eslint-disable-next-line n/no-unsupported-features/node-builtins
     const authResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
