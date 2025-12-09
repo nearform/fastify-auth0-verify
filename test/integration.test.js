@@ -82,6 +82,7 @@ describe('Authentication against Auth0', () => {
   })
 
   test('Returns protected route when expected auth header is provided', async t => {
+    // eslint-disable-next-line n/no-unsupported-features/node-builtins
     const authResponse = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
