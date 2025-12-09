@@ -1,4 +1,6 @@
-require('dotenv').config()
+try {
+  process.loadEnvFile()
+} catch { }
 const Fastify = require('fastify')
 const fetch = require('cross-fetch')
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
