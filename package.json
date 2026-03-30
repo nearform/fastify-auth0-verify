@@ -67,7 +67,7 @@
     "node-cache": "^5.1.2",
     "prettier": "^3.7.4",
     "tsd": "^0.33.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   },
   "engines": {
     "node": ">= 20"
