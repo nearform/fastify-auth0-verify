@@ -215,26 +215,23 @@ async function buildServer(options) {
 describe('Options parsing', function () {
   test('should enable RS256 when the domain is present', async function (t) {
     const server = await buildServer({ domain: 'localhost' })
+    t.after(() => server.close())
 
-    t.assert.deepStrictEqual(server.auth0Verify.verify.algorithms, ['RS256'])
-
-    server.close()
+    t.assert.deepStrictEqual(server.auth0Verify.verify.algorithms, ['RS256', 'EdDSA'])
   })
 
   test('should enable HS256 when the secret is present', async function (t) {
     const server = await buildServer({ secret: 'secret' })
+    t.after(() => server.close())
 
     t.assert.deepStrictEqual(server.auth0Verify.verify.algorithms, ['HS256'])
-
-    server.close()
   })
 
   test('should enable both algorithms is both options are present', async function (t) {
     const server = await buildServer({ domain: 'http://localhost', secret: 'secret' })
+    t.after(() => server.close())
 
-    t.assert.deepStrictEqual(server.auth0Verify.verify.algorithms, ['RS256', 'HS256'])
-
-    server.close()
+    t.assert.deepStrictEqual(server.auth0Verify.verify.algorithms, ['RS256', 'EdDSA', 'HS256'])
   })
 
   test('should complain if neither domain or secret are present', async function (t) {
