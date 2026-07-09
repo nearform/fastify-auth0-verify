@@ -30,5 +30,6 @@ jobs:
           semver: ${{ github.event.inputs.semver }}
           publish-mode: oidc
           build-command: |
+            npm install -g npm@11
             npm install
 
