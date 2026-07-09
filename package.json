@@ -46,28 +46,28 @@
     "postpublish": "git push origin && git push origin -f --tags"
   },
   "dependencies": {
-    "@fastify/cookie": "^11.0.2",
-    "@fastify/jwt": "^10.0.0",
-    "fastify-jwt-jwks": "^3.0.2",
-    "fastify-plugin": "^5.1.0"
+    "@fastify/cookie": "^11.1.0",
+    "@fastify/jwt": "^10.2.0",
+    "fastify-jwt-jwks": "^3.1.0",
+    "fastify-plugin": "^6.0.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.23.1",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-promise": "^7.2.1",
-    "fast-jwt": "^6.1.0",
-    "fastify": "^5.6.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-promise": "^7.3.0",
+    "fast-jwt": "^6.2.4",
+    "fastify": "^5.10.0",
     "neostandard": "^0.13.0",
-    "nock": "^14.0.10",
+    "nock": "^14.0.16",
     "node-cache": "^5.1.2",
-    "prettier": "^3.7.4",
-    "tstyche": "^7.0.0",
-    "typescript": "^6.0.2"
+    "prettier": "^3.9.4",
+    "tstyche": "^7.2.1",
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": ">= 20"
