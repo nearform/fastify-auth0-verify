@@ -1,6 +1,5 @@
 'use strict'
 
-// eslint-disable-next-line n/no-unsupported-features/node-builtins
 const { describe, test, before, after, beforeEach, afterEach } = require('node:test')
 const { readFileSync } = require('fs')
 const path = require('path')
