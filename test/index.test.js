@@ -5,7 +5,7 @@ const { readFileSync } = require('fs')
 const path = require('path')
 const fastify = require('fastify')
 const { createSigner } = require('fast-jwt')
-const nock = require('nock')
+const { default: nock } = require('nock')
 
 function withResolvers() {
   let res, rej
@@ -832,9 +832,10 @@ describe('RS256 JWT token validation', function () {
 
     const body = response.json()
 
-    t.assert.equal(response.statusCode, 404)
-    t.assert.equal(body.statusCode, 404)
-    t.assert.equal(body.error, 'Not Found')
+    t.assert.equal(response.statusCode, 500)
+    t.assert.equal(body.statusCode, 500)
+    t.assert.equal(body.error, 'Internal Server Error')
+    t.assert.match(body.message, /Unable to get the JWS due to a HTTP error: \[HTTP 501\]/)
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
@@ -860,9 +861,10 @@ describe('RS256 JWT token validation', function () {
 
     const body = response.json()
 
-    t.assert.equal(response.statusCode, 404)
-    t.assert.equal(body.statusCode, 404)
-    t.assert.equal(body.error, 'Not Found')
+    t.assert.equal(response.statusCode, 500)
+    t.assert.equal(body.statusCode, 500)
+    t.assert.equal(body.error, 'Internal Server Error')
+    t.assert.match(body.message, /Unable to get the JWS due to a HTTP error: \[HTTP 501\]/)
     t.assert.match(body.message, /Nock: No match for request/)
   })
 
