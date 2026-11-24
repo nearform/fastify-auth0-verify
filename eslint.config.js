@@ -1,5 +1,5 @@
 import js from '@eslint/js'
-import importPlugin from 'eslint-plugin-import'
+import importPlugin from 'eslint-plugin-import-x'
 import eslintPrettier from 'eslint-plugin-prettier/recommended'
 import promisePlugin from 'eslint-plugin-promise'
 import neostandard from 'neostandard'
